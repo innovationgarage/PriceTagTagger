@@ -1,0 +1,131 @@
+﻿using Accord.Vision.Detection;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+
+namespace PriceTagTagger
+{
+    public partial class FormMain : Form
+    {
+        string currentImage = @"D:\Downloads\supermarket\input\tags_rema.jpg";
+        private HaarObjectDetector detector;
+
+        public FormMain()
+        {
+            InitializeComponent();
+
+            //var cascade = new Accord.Vision.Detection.Cascades.NoseHaarCascade();
+            var cascade = HaarCascade.FromXml(@"D:\Downloads\supermarket\NEW_ATTEMPT2\classifier_old_working_crappy\classifier\cascade.xml");
+      
+            // Now, create a new Haar object detector with the cascade:
+            detector = new HaarObjectDetector(cascade, minSize: 100,
+                searchMode: ObjectDetectorSearchMode.Average);
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            // Next image
+            ProcessNextImage();
+        }
+
+        private void ProcessNextImage()
+        {
+            currentImage = GetNextFile(currentImage);
+            ProcessCurrentImage();
+        }
+
+        private string GetNextFile(string currentImage)
+        {
+            var files = Directory.GetFiles(Path.GetDirectoryName(currentImage));
+
+            var next = false;
+
+            foreach (var f in files)
+            {
+                if (next)
+                    return f;
+
+                if (f == currentImage)
+                    next = true;
+            }
+            return files[0];
+
+        }
+
+        private void ProcessCurrentImage()
+        {
+            if (!backgroundWorkerLoadImage.IsBusy)
+            {
+                toolStripProgressBarLoading.Value = 10;
+                backgroundWorkerLoadImage.RunWorkerAsync();
+            }
+        }
+
+        private void toolStripSplitButtonLoad_ButtonClick(object sender, EventArgs e)
+        {
+            ProcessNextImage();
+        }
+
+        private void backgroundWorkerLoadImage_DoWork(object sender, DoWorkEventArgs e)
+        {
+            // Note that we have specified that we do not want overlapping objects,
+            // and that the minimum object an object can have is 50 pixels. Now, we
+            // can use the detector to classify a new image. For instance, consider
+            // the famous Lena picture:
+
+            Bitmap bmp = Accord.Imaging.Image.FromFile(currentImage);
+            backgroundWorkerLoadImage.ReportProgress(20);
+
+            // We have to call ProcessFrame to detect all rectangles containing the 
+            // object we are interested in (which in this case, is the face of Lena):
+            Rectangle[] rectangles = detector.ProcessFrame(bmp);
+            backgroundWorkerLoadImage.ReportProgress(50);
+
+            // The answer will be a single rectangle of dimensions
+            // 
+            //   {X = 126 Y = 112 Width = 59 Height = 59}
+            // 
+            // which indeed contains the only face in the picture.
+
+            var g = Graphics.FromImage(bmp);
+
+            g.DrawImage(bmp, 0, 0);
+            foreach (var r in rectangles)
+                g.DrawRectangle(new Pen(Brushes.Red, 4), r);
+
+            //g.Save();*/
+            g.FillRectangle(Brushes.Green, 20, 20, 100, 100);
+
+            backgroundWorkerLoadImage.ReportProgress(70);
+            g.Save();
+
+            //pictureBox1.Image = new Bitmap(bmp.Height, bmp.Width, g);
+            e.Result = bmp;
+        }
+
+        private void backgroundWorkerLoadImage_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            pictureBox1.Image = (Bitmap)e.Result;
+            toolStripProgressBarLoading.Value = 100;
+            timerClear.Start();
+        }
+
+        private void timerClear_Tick(object sender, EventArgs e)
+        {
+            toolStripProgressBarLoading.Value = 0;
+            timerClear.Stop();
+        }
+
+        private void backgroundWorkerLoadImage_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        {
+            toolStripProgressBarLoading.Value = e.ProgressPercentage;
+        }
+    }
+}
