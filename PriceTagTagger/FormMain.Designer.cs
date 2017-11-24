@@ -184,8 +184,9 @@
             // opencascadeToolStripMenuItem
             // 
             this.opencascadeToolStripMenuItem.Name = "opencascadeToolStripMenuItem";
-            this.opencascadeToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.opencascadeToolStripMenuItem.Size = new System.Drawing.Size(187, 22);
             this.opencascadeToolStripMenuItem.Text = "Open &cascade...";
+            this.opencascadeToolStripMenuItem.Click += new System.EventHandler(this.opencascadeToolStripMenuItem_Click);
             // 
             // toolStripMenuItem1
             // 

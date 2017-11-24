@@ -183,12 +183,14 @@ namespace PriceTagTagger
 
         private void faceToolStripMenuItem_Click(object sender, EventArgs e)
         {
-
+            _settings.CascadeMode = CascadeType.Face;
+            UpdateCurrent();
         }
 
         private void noseToolStripMenuItem_Click(object sender, EventArgs e)
         {
-
+            _settings.CascadeMode = CascadeType.Nose;
+            UpdateCurrent();
         }
 
         private void loadnextToolStripMenuItem_Click(object sender, EventArgs e)
@@ -203,7 +205,7 @@ namespace PriceTagTagger
 
         private void loadImageToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var d = new OpenFileDialog();
+            var d = new OpenFileDialog() { Filter = "Image files (*.jpg, *.jpeg, *.jpe, *.jfif, *.png) | *.jpg; *.jpeg; *.jpe; *.jfif; *.png" };
             if (d.ShowDialog() == DialogResult.OK)
             {
                 _settings.ImagePath = d.FileName;
@@ -214,6 +216,17 @@ namespace PriceTagTagger
         private void loadpreviousToolStripMenuItem_Click(object sender, EventArgs e)
         {
 
+        }
+
+        private void opencascadeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var d = new OpenFileDialog() { Filter = "XML Cascade definition | *.xml" };
+            if (d.ShowDialog() == DialogResult.OK)
+            {
+                _settings.CascadeMode = CascadeType.Custom;
+                _settings.CascadePath = d.FileName;
+                UpdateCurrent();
+            }
         }
     }
 }
