@@ -14,19 +14,26 @@ namespace PriceTagTagger
 {
     public partial class FormMain : Form
     {
-        string currentImage = @"D:\Downloads\supermarket\input\tags_rema.jpg";
         private HaarObjectDetector detector;
+        private readonly ProgramSettings _settings;
 
         public FormMain()
         {
             InitializeComponent();
 
+            _settings = new ProgramSettings();
             //var cascade = new Accord.Vision.Detection.Cascades.NoseHaarCascade();
-            var cascade = HaarCascade.FromXml(@"D:\Downloads\supermarket\NEW_ATTEMPT2\classifier_old_working_crappy\classifier\cascade.xml");
-      
+
+            _settings.HaarMinSize = 20;
+            _settings.CascadePath = @"D:\Downloads\supermarket\NEW_ATTEMPT2\classifier_old_working_crappy\classifier\cascade.xml";
+            _settings.SearchMode = ObjectDetectorSearchMode.Average;
+            _settings.ImagePath = @"D:\Downloads\supermarket\input\tags_rema.jpg";
+
             // Now, create a new Haar object detector with the cascade:
-            detector = new HaarObjectDetector(cascade, minSize: 100,
-                searchMode: ObjectDetectorSearchMode.Average);
+            detector = new HaarObjectDetector(HaarCascade.FromXml(_settings.CascadePath), _settings.HaarMinSize, _settings.SearchMode); 
+            propertyGridSettings.SelectedObject = _settings;
+
+            ProcessCurrentImage();
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -37,7 +44,7 @@ namespace PriceTagTagger
 
         private void ProcessNextImage()
         {
-            currentImage = GetNextFile(currentImage);
+            _settings.ImagePath = GetNextFile(_settings.ImagePath);
             ProcessCurrentImage();
         }
 
@@ -63,7 +70,7 @@ namespace PriceTagTagger
         {
             if (!backgroundWorkerLoadImage.IsBusy)
             {
-                toolStripProgressBarLoading.Value = 10;
+                toolStripProgressBarLoading.Value = 70;
                 backgroundWorkerLoadImage.RunWorkerAsync();
             }
         }
@@ -80,13 +87,13 @@ namespace PriceTagTagger
             // can use the detector to classify a new image. For instance, consider
             // the famous Lena picture:
 
-            Bitmap bmp = Accord.Imaging.Image.FromFile(currentImage);
-            backgroundWorkerLoadImage.ReportProgress(20);
+            Bitmap bmp = Accord.Imaging.Image.FromFile(_settings.ImagePath);
+            backgroundWorkerLoadImage.ReportProgress(80);
 
             // We have to call ProcessFrame to detect all rectangles containing the 
             // object we are interested in (which in this case, is the face of Lena):
             Rectangle[] rectangles = detector.ProcessFrame(bmp);
-            backgroundWorkerLoadImage.ReportProgress(50);
+            backgroundWorkerLoadImage.ReportProgress(90);
 
             // The answer will be a single rectangle of dimensions
             // 
@@ -102,8 +109,6 @@ namespace PriceTagTagger
 
             //g.Save();*/
             g.FillRectangle(Brushes.Green, 20, 20, 100, 100);
-
-            backgroundWorkerLoadImage.ReportProgress(70);
             g.Save();
 
             //pictureBox1.Image = new Bitmap(bmp.Height, bmp.Width, g);
@@ -126,6 +131,26 @@ namespace PriceTagTagger
         private void backgroundWorkerLoadImage_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
             toolStripProgressBarLoading.Value = e.ProgressPercentage;
+        }
+
+        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Application.Exit();
+        }
+
+        private void faceToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void noseToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void loadnextToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ProcessNextImage();
         }
     }
 }
