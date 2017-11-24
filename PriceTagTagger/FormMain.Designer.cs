@@ -202,8 +202,8 @@
             // loadnextToolStripMenuItem
             // 
             this.loadnextToolStripMenuItem.Name = "loadnextToolStripMenuItem";
-            this.loadnextToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Left)));
-            this.loadnextToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.loadnextToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Right)));
+            this.loadnextToolStripMenuItem.Size = new System.Drawing.Size(202, 22);
             this.loadnextToolStripMenuItem.Text = "Load &next";
             this.loadnextToolStripMenuItem.Click += new System.EventHandler(this.loadnextToolStripMenuItem_Click);
             // 

@@ -210,5 +210,10 @@ namespace PriceTagTagger
                 UpdateCurrent();
             }
         }
+
+        private void loadpreviousToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }
