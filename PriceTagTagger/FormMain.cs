@@ -6,6 +6,7 @@ using System.Data;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -16,6 +17,7 @@ namespace PriceTagTagger
     {
         private HaarObjectDetector detector;
         private readonly ProgramSettings _settings;
+        private bool _processAgain;
 
         public FormMain()
         {
@@ -28,12 +30,40 @@ namespace PriceTagTagger
             _settings.CascadePath = @"D:\Downloads\supermarket\NEW_ATTEMPT2\classifier_old_working_crappy\classifier\cascade.xml";
             _settings.SearchMode = ObjectDetectorSearchMode.Average;
             _settings.ImagePath = @"D:\Downloads\supermarket\input\tags_rema.jpg";
+            _settings.CascadeMode = CascadeType.Custom;
+            _settings.MarkersBorderColor = Color.Violet;
+            _settings.MarkersBorderSize = 1;
 
+            UpdateCurrent();
+        }
+
+        private void UpdateCurrent()
+        {
             // Now, create a new Haar object detector with the cascade:
-            detector = new HaarObjectDetector(HaarCascade.FromXml(_settings.CascadePath), _settings.HaarMinSize, _settings.SearchMode); 
-            propertyGridSettings.SelectedObject = _settings;
+            detector = new HaarObjectDetector(GetCascade(), _settings.HaarMinSize, _settings.SearchMode);
 
+            /*var descriptor = TypeDescriptor.GetProperties(propertyGrid1.SelectedObject.GetType())["SpouseName"];
+            var attrib = (ReadOnlyAttribute)descriptor.Attributes[typeof(ReadOnlyAttribute)];
+            FieldInfo isReadOnly = attrib.GetType().GetField("isReadOnly", BindingFlags.NonPublic | BindingFlags.Instance);*/
+
+            var p = TypeDescriptor.GetAttributes(_settings.CascadePath);
+            
+
+            propertyGridSettings.SelectedObject = _settings;
             ProcessCurrentImage();
+        }
+
+        private HaarCascade GetCascade()
+        {
+            switch (_settings.CascadeMode)
+            {
+                case CascadeType.Face:
+                    return new Accord.Vision.Detection.Cascades.FaceHaarCascade();
+                case CascadeType.Nose:
+                    return new Accord.Vision.Detection.Cascades.NoseHaarCascade();
+            }
+
+            return HaarCascade.FromXml(_settings.CascadePath);
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -70,9 +100,12 @@ namespace PriceTagTagger
         {
             if (!backgroundWorkerLoadImage.IsBusy)
             {
+                toolStripStatusLabel1.Text = "Loading " + _settings.ImagePath;
                 toolStripProgressBarLoading.Value = 70;
                 backgroundWorkerLoadImage.RunWorkerAsync();
             }
+            else
+                _processAgain = true;
         }
 
         private void toolStripSplitButtonLoad_ButtonClick(object sender, EventArgs e)
@@ -87,7 +120,7 @@ namespace PriceTagTagger
             // can use the detector to classify a new image. For instance, consider
             // the famous Lena picture:
 
-            Bitmap bmp = Accord.Imaging.Image.FromFile(_settings.ImagePath);
+            var bmp = Accord.Imaging.Image.FromFile(_settings.ImagePath);
             backgroundWorkerLoadImage.ReportProgress(80);
 
             // We have to call ProcessFrame to detect all rectangles containing the 
@@ -105,10 +138,10 @@ namespace PriceTagTagger
 
             g.DrawImage(bmp, 0, 0);
             foreach (var r in rectangles)
-                g.DrawRectangle(new Pen(Brushes.Red, 4), r);
+                g.DrawRectangle(new Pen(_settings.MarkersBorderColor, _settings.MarkersBorderSize), r);
 
             //g.Save();*/
-            g.FillRectangle(Brushes.Green, 20, 20, 100, 100);
+            //g.FillRectangle(Brushes.Green, 20, 20, 100, 100);
             g.Save();
 
             //pictureBox1.Image = new Bitmap(bmp.Height, bmp.Width, g);
@@ -118,8 +151,18 @@ namespace PriceTagTagger
         private void backgroundWorkerLoadImage_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
             pictureBox1.Image = (Bitmap)e.Result;
-            toolStripProgressBarLoading.Value = 100;
-            timerClear.Start();
+
+            if (_processAgain)
+            {
+                _processAgain = false;
+                backgroundWorkerLoadImage.RunWorkerAsync();
+            }
+            else
+            {
+                toolStripProgressBarLoading.Value = 100;
+                toolStripStatusLabel1.Text = "Ready";
+                timerClear.Start();
+            }
         }
 
         private void timerClear_Tick(object sender, EventArgs e)
@@ -151,6 +194,21 @@ namespace PriceTagTagger
         private void loadnextToolStripMenuItem_Click(object sender, EventArgs e)
         {
             ProcessNextImage();
+        }
+
+        private void propertyGridSettings_PropertyValueChanged(object s, PropertyValueChangedEventArgs e)
+        {
+            UpdateCurrent();
+        }
+
+        private void loadImageToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var d = new OpenFileDialog();
+            if (d.ShowDialog() == DialogResult.OK)
+            {
+                _settings.ImagePath = d.FileName;
+                UpdateCurrent();
+            }
         }
     }
 }
