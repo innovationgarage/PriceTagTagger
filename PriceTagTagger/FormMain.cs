@@ -1,69 +1,49 @@
-﻿using Accord.Vision.Detection;
+﻿using Emgu.CV;
+using Emgu.CV.CvEnum;
+using Emgu.CV.Structure;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
 using System.Drawing;
 using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace PriceTagTagger
 {
     public partial class FormMain : Form
     {
-        private HaarObjectDetector detector;
-        private readonly ProgramSettings _settings;
+        //private HaarObjectDetector detector;
         private bool _processAgain;
+        private List<Cascade> _cascades;
+        private string _image;
 
         public FormMain()
         {
             InitializeComponent();
 
-            _settings = new ProgramSettings();
-            //var cascade = new Accord.Vision.Detection.Cascades.NoseHaarCascade();
+            _cascades = new List<Cascade>
+            {
+                new Cascade
+                {
+                    CascadePath = @"D:\Downloads\supermarket\NEW_ATTEMPT2\classifier_old_working_crappy\classifier\cascade.xml",
+                    MarkersBorderColor = Color.Violet,
+                    MarkersBorderSize = 1,
+                    DetectorMinNeighbors = 3,
+                    DetectorMaxSize = new Size(1000, 1000),
+                    DetectorMinSize = new Size(10, 10),
+                    DetectorScaleFactor = 1.2F
+                }
+            };
 
-            _settings.HaarMinSize = 20;
-            _settings.CascadePath = @"D:\Downloads\supermarket\NEW_ATTEMPT2\classifier_old_working_crappy\classifier\cascade.xml";
-            _settings.SearchMode = ObjectDetectorSearchMode.Average;
-            _settings.ImagePath = @"D:\Downloads\supermarket\input\tags_rema.jpg";
-            _settings.CascadeMode = CascadeType.Custom;
-            _settings.MarkersBorderColor = Color.Violet;
-            _settings.MarkersBorderSize = 1;
+            _image = @"D:\Downloads\supermarket\input\tags_rema.jpg";
 
             UpdateCurrent();
         }
 
         private void UpdateCurrent()
         {
-            // Now, create a new Haar object detector with the cascade:
-            detector = new HaarObjectDetector(GetCascade(), _settings.HaarMinSize, _settings.SearchMode);
-
-            /*var descriptor = TypeDescriptor.GetProperties(propertyGrid1.SelectedObject.GetType())["SpouseName"];
-            var attrib = (ReadOnlyAttribute)descriptor.Attributes[typeof(ReadOnlyAttribute)];
-            FieldInfo isReadOnly = attrib.GetType().GetField("isReadOnly", BindingFlags.NonPublic | BindingFlags.Instance);*/
-
-            var p = TypeDescriptor.GetAttributes(_settings.CascadePath);
-            
-
-            propertyGridSettings.SelectedObject = _settings;
+            propertyGridSettings.SelectedObject = _cascades[0];
             ProcessCurrentImage();
-        }
-
-        private HaarCascade GetCascade()
-        {
-            switch (_settings.CascadeMode)
-            {
-                case CascadeType.Face:
-                    return new Accord.Vision.Detection.Cascades.FaceHaarCascade();
-                case CascadeType.Nose:
-                    return new Accord.Vision.Detection.Cascades.NoseHaarCascade();
-            }
-
-            return HaarCascade.FromXml(_settings.CascadePath);
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -74,7 +54,7 @@ namespace PriceTagTagger
 
         private void ProcessNextImage()
         {
-            _settings.ImagePath = GetNextFile(_settings.ImagePath);
+            _image = GetNextFile(_image);
             ProcessCurrentImage();
         }
 
@@ -100,7 +80,8 @@ namespace PriceTagTagger
         {
             if (!backgroundWorkerLoadImage.IsBusy)
             {
-                toolStripStatusLabel1.Text = "Loading " + _settings.ImagePath;
+                pictureBoxViewer.Image = Image.FromFile(_image);
+                toolStripStatusLabel1.Text = "Analyzing " + _image;
                 toolStripProgressBarLoading.Value = 70;
                 backgroundWorkerLoadImage.RunWorkerAsync();
             }
@@ -108,49 +89,40 @@ namespace PriceTagTagger
                 _processAgain = true;
         }
 
-        private void toolStripSplitButtonLoad_ButtonClick(object sender, EventArgs e)
-        {
-            ProcessNextImage();
-        }
-
         private void backgroundWorkerLoadImage_DoWork(object sender, DoWorkEventArgs e)
         {
-            // Note that we have specified that we do not want overlapping objects,
-            // and that the minimum object an object can have is 50 pixels. Now, we
-            // can use the detector to classify a new image. For instance, consider
-            // the famous Lena picture:
+            var detector = new CascadeClassifier(_cascades[0].CascadePath);
+            //var image = new UMat(_settings.ImagePath, ImreadModes.Color); //UMat version
+            //var bmp = Accord.Imaging.Image.FromFile(_settings.ImagePath);
 
-            var bmp = Accord.Imaging.Image.FromFile(_settings.ImagePath);
+            var image = new UMat(_image, ImreadModes.Color); //UMat version
             backgroundWorkerLoadImage.ReportProgress(80);
 
-            // We have to call ProcessFrame to detect all rectangles containing the 
-            // object we are interested in (which in this case, is the face of Lena):
-            Rectangle[] rectangles = detector.ProcessFrame(bmp);
-            backgroundWorkerLoadImage.ReportProgress(90);
+            Rectangle[] detectedObjects;
 
-            // The answer will be a single rectangle of dimensions
-            // 
-            //   {X = 126 Y = 112 Width = 59 Height = 59}
-            // 
-            // which indeed contains the only face in the picture.
+            using (var ugray = new UMat())
+            {
+                CvInvoke.CvtColor(image, ugray, ColorConversion.Bgr2Gray);
 
-            var g = Graphics.FromImage(bmp);
+                //normalizes brightness and increases contrast of the image
+                CvInvoke.EqualizeHist(ugray, ugray);
+                 
+                detectedObjects = detector.DetectMultiScale(ugray, _cascades[0].DetectorScaleFactor, 
+                    _cascades[0].DetectorMinNeighbors, _cascades[0].DetectorMinSize, _cascades[0].DetectorMaxSize);
+            }
 
-            g.DrawImage(bmp, 0, 0);
-            foreach (var r in rectangles)
-                g.DrawRectangle(new Pen(_settings.MarkersBorderColor, _settings.MarkersBorderSize), r);
+            foreach(var d in detectedObjects)
+            {
+                CvInvoke.Rectangle(image, d, new Bgr(_cascades[0].MarkersBorderColor).MCvScalar, _cascades[0].MarkersBorderSize);
+            }
 
-            //g.Save();*/
-            //g.FillRectangle(Brushes.Green, 20, 20, 100, 100);
-            g.Save();
-
-            //pictureBox1.Image = new Bitmap(bmp.Height, bmp.Width, g);
-            e.Result = bmp;
+            e.Result = image.Bitmap;
+                backgroundWorkerLoadImage.ReportProgress(90);
         }
 
         private void backgroundWorkerLoadImage_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            pictureBox1.Image = (Bitmap)e.Result;
+            pictureBoxViewer.Image = (Bitmap)e.Result;
 
             if (_processAgain)
             {
@@ -181,18 +153,6 @@ namespace PriceTagTagger
             Application.Exit();
         }
 
-        private void faceToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            _settings.CascadeMode = CascadeType.Face;
-            UpdateCurrent();
-        }
-
-        private void noseToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            _settings.CascadeMode = CascadeType.Nose;
-            UpdateCurrent();
-        }
-
         private void loadnextToolStripMenuItem_Click(object sender, EventArgs e)
         {
             ProcessNextImage();
@@ -208,23 +168,22 @@ namespace PriceTagTagger
             var d = new OpenFileDialog() { Filter = "Image files (*.jpg, *.jpeg, *.jpe, *.jfif, *.png) | *.jpg; *.jpeg; *.jpe; *.jfif; *.png" };
             if (d.ShowDialog() == DialogResult.OK)
             {
-                _settings.ImagePath = d.FileName;
+                _image = d.FileName;
                 UpdateCurrent();
             }
         }
 
-        private void loadpreviousToolStripMenuItem_Click(object sender, EventArgs e)
+        private void emptyToolStripMenuItem_Click(object sender, EventArgs e)
         {
-
+            _cascades = new List<Cascade>();
         }
 
-        private void opencascadeToolStripMenuItem_Click(object sender, EventArgs e)
+        private void opencascadeToolStripMenuItem_Click_1(object sender, EventArgs e)
         {
             var d = new OpenFileDialog() { Filter = "XML Cascade definition | *.xml" };
             if (d.ShowDialog() == DialogResult.OK)
             {
-                _settings.CascadeMode = CascadeType.Custom;
-                _settings.CascadePath = d.FileName;
+                _cascades[0].CascadePath = d.FileName;
                 UpdateCurrent();
             }
         }
