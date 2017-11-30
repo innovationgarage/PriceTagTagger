@@ -12,9 +12,8 @@ namespace PriceTagTagger
 {
     public partial class FormMain : Form
     {
-        //private HaarObjectDetector detector;
         private bool _processAgain;
-        private List<Cascade> _cascades;
+        private readonly List<Cascade> _cascades;
         private string _image;
 
         public FormMain()
@@ -27,7 +26,7 @@ namespace PriceTagTagger
                 {
                     CascadePath = @"D:\Downloads\supermarket\NEW_ATTEMPT2\classifier_old_working_crappy\classifier\cascade.xml",
                     MarkersBorderColor = Color.Violet,
-                    MarkersBorderSize = 1,
+                    MarkersBorderSize = 4,
                     DetectorMinNeighbors = 3,
                     DetectorMaxSize = new Size(1000, 1000),
                     DetectorMinSize = new Size(10, 10),
@@ -44,12 +43,6 @@ namespace PriceTagTagger
         {
             propertyGridSettings.SelectedObject = _cascades[0];
             ProcessCurrentImage();
-        }
-
-        private void button1_Click(object sender, EventArgs e)
-        {
-            // Next image
-            ProcessNextImage();
         }
 
         private void ProcessNextImage()
@@ -153,11 +146,6 @@ namespace PriceTagTagger
             Application.Exit();
         }
 
-        private void loadnextToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            ProcessNextImage();
-        }
-
         private void propertyGridSettings_PropertyValueChanged(object s, PropertyValueChangedEventArgs e)
         {
             UpdateCurrent();
@@ -175,7 +163,16 @@ namespace PriceTagTagger
 
         private void emptyToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            _cascades = new List<Cascade>();
+            _cascades.Add(new Cascade());
+            UpdateGUI();
+        }
+
+        private void UpdateGUI()
+        {
+            //var prev = comboBoxSelectedCascade.SelectedIndex;
+            comboBoxSelectedCascade.Items.Clear();
+            comboBoxSelectedCascade.Items.AddRange(_cascades.ToArray());
+            //comboBoxSelectedCascade.SelectedIndex = prev;
         }
 
         private void opencascadeToolStripMenuItem_Click_1(object sender, EventArgs e)
@@ -186,6 +183,21 @@ namespace PriceTagTagger
                 _cascades[0].CascadePath = d.FileName;
                 UpdateCurrent();
             }
+        }
+
+        private void loadnextToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ProcessNextImage();
+        }
+
+        private void comboBoxSelectedCascade_SelectedValueChanged(object sender, EventArgs e)
+        {
+            propertyGridSettings.SelectedObject = comboBoxSelectedCascade.SelectedItem;
+        }
+
+        private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("Innovation Garage AS");
         }
     }
 }
