@@ -6,14 +6,16 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
+using System.Xml.Serialization;
 
 namespace PriceTagTagger
 {
     public partial class FormMain : Form
     {
         private bool _processAgain;
-        private readonly List<Cascade> _cascades;
+        private List<Cascade> _cascades;
         private string _image;
         private int _selected = 0;
 
@@ -21,28 +23,13 @@ namespace PriceTagTagger
         {
             InitializeComponent();
 
-            _cascades = new List<Cascade>
-            {
-                new Cascade
-                {
-                    CascadePath = @"D:\Downloads\supermarket\NEW_ATTEMPT2\classifier_old_working_crappy\classifier\cascade.xml",
-                    MarkersBorderColor = Color.Violet,
-                    MarkersBorderSize = 4,
-                    DetectorMinNeighbors = 3,
-                    DetectorMaxSize = new Size(1000, 1000),
-                    DetectorMinSize = new Size(10, 10),
-                    DetectorScaleFactor = 1.2F
-                }
-            };
-
-            _image = @"D:\Downloads\supermarket\input\tags_rema.jpg";
-
+            _cascades = new List<Cascade>();
             UpdateCurrent();
         }
 
         private void UpdateCurrent()
         {
-            propertyGridSettings.SelectedObject = _cascades[_selected];
+            propertyGridSettings.SelectedObject = (_cascades == null || _cascades.Count == 0)?null:_cascades[_selected];
             ProcessCurrentImage();
             UpdateGUI();
         }
@@ -75,10 +62,14 @@ namespace PriceTagTagger
         {
             if (!backgroundWorkerLoadImage.IsBusy)
             {
-                pictureBoxViewer.Image = Image.FromFile(_image);
-                toolStripStatusLabel1.Text = "Analyzing " + _image;
-                toolStripProgressBarLoading.Value = 70;
-                backgroundWorkerLoadImage.RunWorkerAsync();
+                try
+                {
+                    pictureBoxViewer.Image = Image.FromFile(_image);
+                    toolStripStatusLabel1.Text = $"Processing \'{_image}\'";
+                    toolStripProgressBarLoading.Value = 20;
+                    backgroundWorkerLoadImage.RunWorkerAsync();
+                }
+                catch { }
             }
             else
                 _processAgain = true;
@@ -86,38 +77,66 @@ namespace PriceTagTagger
 
         private void backgroundWorkerLoadImage_DoWork(object sender, DoWorkEventArgs e)
         {
-            var detector = new CascadeClassifier(_cascades[_selected].CascadePath);
-            //var image = new UMat(_settings.ImagePath, ImreadModes.Color); //UMat version
-            //var bmp = Accord.Imaging.Image.FromFile(_settings.ImagePath);
-
             var image = new UMat(_image, ImreadModes.Color); //UMat version
-            backgroundWorkerLoadImage.ReportProgress(80);
+            var detected = new List<Tuple<Rectangle, Cascade>>();
 
-            Rectangle[] detectedObjects;
-
-            using (var ugray = new UMat())
+            for (var i = 0; i < _cascades.Count; i++)
             {
-                CvInvoke.CvtColor(image, ugray, ColorConversion.Bgr2Gray);
+                var c = _cascades[i];
 
-                //normalizes brightness and increases contrast of the image
-                CvInvoke.EqualizeHist(ugray, ugray);
-                 
-                detectedObjects = detector.DetectMultiScale(ugray, _cascades[_selected].DetectorScaleFactor, 
-                    _cascades[_selected].DetectorMinNeighbors, _cascades[_selected].DetectorMinSize, _cascades[_selected].DetectorMaxSize);
+                backgroundWorkerLoadImage.ReportProgress((int) Map(i, 0, _cascades.Count, 30, 80));
+
+                if (!c.Enabled)
+                    continue;
+
+                //try
+                {
+                    var detector = new CascadeClassifier(c.CascadePath);
+
+                    Rectangle[] detectedObjects;
+
+                    using (var ugray = new UMat())
+                    {
+                        CvInvoke.CvtColor(image, ugray, ColorConversion.Bgr2Gray);
+
+                        //normalizes brightness and increases contrast of the image
+                        CvInvoke.EqualizeHist(ugray, ugray);
+
+                        detectedObjects = detector.DetectMultiScale(ugray, c.DetectorScaleFactor,
+                            c.DetectorMinNeighbors, c.DetectorMinSize, c.DetectorMaxSize);
+                    }
+
+                    detected.AddRange(detectedObjects.Select(r => Tuple.Create(r, c)));
+                }
+                //catch{ }
             }
 
-            foreach(var d in detectedObjects)
+            // Apply ZOrder
+            detected.Sort(ZOrderComparer);
+
+            foreach (var d in detected)
             {
-                CvInvoke.Rectangle(image, d, new Bgr(_cascades[_selected].MarkersBorderColor).MCvScalar, _cascades[_selected].MarkersBorderSize);
+                CvInvoke.Rectangle(image, d.Item1, new Bgr(d.Item2.MarkersBorderColor).MCvScalar,
+                    d.Item2.MarkersBorderSize);
             }
 
-            e.Result = image.Bitmap;
-                backgroundWorkerLoadImage.ReportProgress(90);
+            e.Result = new Bitmap(image.Bitmap);
+            backgroundWorkerLoadImage.ReportProgress(90);
+        }
+
+        private static int ZOrderComparer(Tuple<Rectangle, Cascade> x, Tuple<Rectangle, Cascade> y)
+        {
+            return x.Item2.ZOrder.CompareTo(y.Item2.ZOrder);
+        }
+
+        long Map(long x, long in_min, long in_max, long out_min, long out_max)
+        {
+            return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
         }
 
         private void backgroundWorkerLoadImage_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            pictureBoxViewer.Image = (Bitmap)e.Result;
+            pictureBoxViewer.Image = (Image) e.Result;
 
             if (_processAgain)
             {
@@ -171,21 +190,28 @@ namespace PriceTagTagger
 
         private void UpdateGUI()
         {
-            //var prev = comboBoxSelectedCascade.SelectedIndex;
+            comboBoxSelectedCascade.SelectedValueChanged -= comboBoxSelectedCascade_SelectedValueChanged;
             comboBoxSelectedCascade.Items.Clear();
-            comboBoxSelectedCascade.Items.AddRange(_cascades.ToArray());
+
+            var en = true;
+
+            if (_cascades == null || _cascades.Count == 0)
+                en = false;
+            else
+                comboBoxSelectedCascade.Items.AddRange(_cascades.ToArray());
+
+            comboBoxSelectedCascade.Enabled = en;
+            linkLabelDuplicateSelected.Enabled = en;
+            duplicateSelectedToolStripMenuItem.Enabled = en;
+            removeSelectedToolStripMenuItem.Enabled = en;
+
+            loadnextToolStripMenuItem.Enabled = !string.IsNullOrEmpty(_image) && File.Exists(_image);
+
+            comboBoxSelectedCascade.SelectedValueChanged += comboBoxSelectedCascade_SelectedValueChanged;
+
+            if (comboBoxSelectedCascade.Items.Count > 0) 
             comboBoxSelectedCascade.SelectedIndex = _selected;
         }
-
-        /*private void opencascadeToolStripMenuItem_Click_1(object sender, EventArgs e)
-        {
-            var d = new OpenFileDialog() { Filter = "XML Cascade definition | *.xml" };
-            if (d.ShowDialog() == DialogResult.OK)
-            {
-                _cascades[_selected].CascadePath = d.FileName;
-                UpdateCurrent();
-            }
-        }*/
 
         private void loadnextToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -194,6 +220,7 @@ namespace PriceTagTagger
 
         private void comboBoxSelectedCascade_SelectedValueChanged(object sender, EventArgs e)
         {
+            _selected = comboBoxSelectedCascade.SelectedIndex;
             propertyGridSettings.SelectedObject = comboBoxSelectedCascade.SelectedItem;
         }
 
@@ -202,29 +229,115 @@ namespace PriceTagTagger
             MessageBox.Show("Innovation Garage AS");
         }
 
-        private void removeSelectedToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-
-        }
-
         private void duplicateCurrentToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            _cascades.Add(_cascades[_selected].Clone());
-            _selected = _cascades.Count - 1;
+            DuplicateCurrentCascade();
             UpdateGUI();
         }
 
-        private void fileToolStripMenuItem1_Click(object sender, EventArgs e)
+        private void DuplicateCurrentCascade()
         {
-            var tmp = new CascadeFileNameEditor().EditValue(null, "") as string;
+            _cascades.Add((_cascades == null || _cascades.Count == 0) ? new Cascade(): _cascades[_selected].Clone());
+            _selected = _cascades.Count - 1;
+            _cascades[_selected].Name = string.IsNullOrEmpty(_cascades[_selected].ToString()) ? string.Empty: _cascades[_selected] + " (copy)";
+        }
 
-            if (string.IsNullOrEmpty(tmp) || File.Exists(tmp))
+        private void addNewToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            AddNewCascadeFromFile();
+        }
+
+        private void AddNewCascadeFromFile()
+        {
+            var cascadeFile = new CascadeFileNameEditor().EditValue(null, "") as string;
+            if (string.IsNullOrEmpty(cascadeFile) && !File.Exists(cascadeFile)) return;
+
+            DuplicateCurrentCascade();
+            _cascades[_selected].CascadePath = cascadeFile;
+            UpdateGUI();
+        }
+
+        private void linkLabelDuplicateSelected_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            DuplicateCurrentCascade();
+            UpdateGUI();
+        }
+
+        private void linkLabelAddCascade_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            AddNewCascadeFromFile();
+        }
+
+        private void removeSelectedToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            _cascades.RemoveAt(_selected);
+
+            if (_cascades.Count == 0)
             {
-                _cascades.Add(_cascades[_selected].Clone());
-                _selected = _cascades.Count - 1;
-                _cascades[_selected].CascadePath = tmp;
-                UpdateGUI();
+                propertyGridSettings.SelectedObject = null;
             }
+
+            _selected += _selected > 0 ? -1 : 0;
+            UpdateGUI();
+        }
+
+        private void saveConfigurationToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var d = new SaveFileDialog { Filter = "XML File|*.xml" };
+
+            if (d.ShowDialog() == DialogResult.OK)
+            {
+                Serialization(_cascades, d.FileName);
+            }
+        }
+
+        private void loadConfigurationToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var d = new OpenFileDialog { Filter = "XML File|*.xml" };
+
+            if (d.ShowDialog() == DialogResult.OK)
+            {
+                _cascades = Deserialize(d.FileName);
+            }
+
+            UpdateCurrent();
+        }
+
+
+        // From: https://stackoverflow.com/questions/5005900/how-to-serialize-listt
+        public List<Cascade> Deserialize(string a_fileName)
+        {
+            XmlSerializer deserializer = new XmlSerializer(typeof(List<Cascade>));
+
+            TextReader reader = new StreamReader(a_fileName);
+
+            object obj = deserializer.Deserialize(reader);
+
+            reader.Close();
+
+            return (List<Cascade>)obj;
+        }
+
+        public void Serialization(List<Cascade> a_stations, string a_fileName)
+        {
+            XmlSerializer serializer = new XmlSerializer(typeof(List<Cascade>));
+
+            using (var stream = File.OpenWrite(a_fileName))
+            {
+                serializer.Serialize(stream, a_stations);
+            }
+        }
+
+
+
+        private void newToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void appendCascadeSetToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

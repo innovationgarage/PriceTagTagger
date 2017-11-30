@@ -36,11 +36,16 @@
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.comboBoxSelectedCascade = new System.Windows.Forms.ComboBox();
             this.propertyGridSettings = new System.Windows.Forms.PropertyGrid();
+            this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
+            this.linkLabelDuplicateSelected = new System.Windows.Forms.LinkLabel();
+            this.linkLabelAddCascade = new System.Windows.Forms.LinkLabel();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripProgressBarLoading = new System.Windows.Forms.ToolStripProgressBar();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.newToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
             this.loadConfigurationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveConfigurationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripSeparator();
@@ -49,19 +54,15 @@
             this.loadImageToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.loadnextToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.cascadeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.addNewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.duplicateSelectedToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem3 = new System.Windows.Forms.ToolStripSeparator();
             this.removeSelectedToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.backgroundWorkerLoadImage = new System.ComponentModel.BackgroundWorker();
             this.timerClear = new System.Windows.Forms.Timer(this.components);
-            this.toolStripMenuItem3 = new System.Windows.Forms.ToolStripSeparator();
-            this.fileToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
-            this.duplicateCurrentToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.newToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
-            this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
-            this.linkLabel1 = new System.Windows.Forms.LinkLabel();
-            this.linkLabel2 = new System.Windows.Forms.LinkLabel();
+            this.appendCascadeSetToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxViewer)).BeginInit();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainerMain)).BeginInit();
@@ -69,9 +70,9 @@
             this.splitContainerMain.Panel2.SuspendLayout();
             this.splitContainerMain.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
+            this.flowLayoutPanel1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
-            this.flowLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // pictureBoxViewer
@@ -79,7 +80,7 @@
             this.pictureBoxViewer.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pictureBoxViewer.Location = new System.Drawing.Point(0, 0);
             this.pictureBoxViewer.Name = "pictureBoxViewer";
-            this.pictureBoxViewer.Size = new System.Drawing.Size(745, 683);
+            this.pictureBoxViewer.Size = new System.Drawing.Size(747, 683);
             this.pictureBoxViewer.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.pictureBoxViewer.TabIndex = 1;
             this.pictureBoxViewer.TabStop = false;
@@ -105,14 +106,15 @@
             // splitContainerMain.Panel1
             // 
             this.splitContainerMain.Panel1.Controls.Add(this.tableLayoutPanel1);
-            this.splitContainerMain.Panel1MinSize = 320;
+            this.splitContainerMain.Panel1MinSize = 360;
             // 
             // splitContainerMain.Panel2
             // 
             this.splitContainerMain.Panel2.Controls.Add(this.pictureBoxViewer);
             this.splitContainerMain.Size = new System.Drawing.Size(1111, 683);
-            this.splitContainerMain.SplitterDistance = 362;
+            this.splitContainerMain.SplitterDistance = 360;
             this.splitContainerMain.TabIndex = 3;
+            this.splitContainerMain.TabStop = false;
             // 
             // tableLayoutPanel1
             // 
@@ -128,7 +130,7 @@
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(362, 683);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(360, 683);
             this.tableLayoutPanel1.TabIndex = 3;
             // 
             // comboBoxSelectedCascade
@@ -140,7 +142,6 @@
             this.comboBoxSelectedCascade.Name = "comboBoxSelectedCascade";
             this.comboBoxSelectedCascade.Size = new System.Drawing.Size(356, 21);
             this.comboBoxSelectedCascade.TabIndex = 1;
-            this.comboBoxSelectedCascade.SelectedValueChanged += new System.EventHandler(this.comboBoxSelectedCascade_SelectedValueChanged);
             // 
             // propertyGridSettings
             // 
@@ -150,6 +151,40 @@
             this.propertyGridSettings.Size = new System.Drawing.Size(356, 630);
             this.propertyGridSettings.TabIndex = 0;
             this.propertyGridSettings.PropertyValueChanged += new System.Windows.Forms.PropertyValueChangedEventHandler(this.propertyGridSettings_PropertyValueChanged);
+            // 
+            // flowLayoutPanel1
+            // 
+            this.flowLayoutPanel1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.flowLayoutPanel1.Controls.Add(this.linkLabelDuplicateSelected);
+            this.flowLayoutPanel1.Controls.Add(this.linkLabelAddCascade);
+            this.flowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.flowLayoutPanel1.FlowDirection = System.Windows.Forms.FlowDirection.RightToLeft;
+            this.flowLayoutPanel1.Location = new System.Drawing.Point(3, 30);
+            this.flowLayoutPanel1.Name = "flowLayoutPanel1";
+            this.flowLayoutPanel1.Size = new System.Drawing.Size(356, 14);
+            this.flowLayoutPanel1.TabIndex = 2;
+            // 
+            // linkLabelDuplicateSelected
+            // 
+            this.linkLabelDuplicateSelected.AutoSize = true;
+            this.linkLabelDuplicateSelected.Location = new System.Drawing.Point(301, 0);
+            this.linkLabelDuplicateSelected.Name = "linkLabelDuplicateSelected";
+            this.linkLabelDuplicateSelected.Size = new System.Drawing.Size(52, 13);
+            this.linkLabelDuplicateSelected.TabIndex = 1;
+            this.linkLabelDuplicateSelected.TabStop = true;
+            this.linkLabelDuplicateSelected.Text = "Duplicate";
+            this.linkLabelDuplicateSelected.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabelDuplicateSelected_LinkClicked);
+            // 
+            // linkLabelAddCascade
+            // 
+            this.linkLabelAddCascade.AutoSize = true;
+            this.linkLabelAddCascade.Location = new System.Drawing.Point(225, 0);
+            this.linkLabelAddCascade.Name = "linkLabelAddCascade";
+            this.linkLabelAddCascade.Size = new System.Drawing.Size(70, 13);
+            this.linkLabelAddCascade.TabIndex = 0;
+            this.linkLabelAddCascade.TabStop = true;
+            this.linkLabelAddCascade.Text = "Add cascade";
+            this.linkLabelAddCascade.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabelAddCascade_LinkClicked);
             // 
             // statusStrip1
             // 
@@ -194,6 +229,7 @@
             this.newToolStripMenuItem,
             this.toolStripMenuItem1,
             this.loadConfigurationToolStripMenuItem,
+            this.appendCascadeSetToolStripMenuItem,
             this.saveConfigurationToolStripMenuItem,
             this.toolStripMenuItem2,
             this.exitToolStripMenuItem});
@@ -201,28 +237,44 @@
             this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
             this.fileToolStripMenuItem.Text = "&File";
             // 
+            // newToolStripMenuItem
+            // 
+            this.newToolStripMenuItem.Name = "newToolStripMenuItem";
+            this.newToolStripMenuItem.Size = new System.Drawing.Size(224, 22);
+            this.newToolStripMenuItem.Text = "&New cascade set";
+            this.newToolStripMenuItem.Click += new System.EventHandler(this.newToolStripMenuItem_Click);
+            // 
+            // toolStripMenuItem1
+            // 
+            this.toolStripMenuItem1.Name = "toolStripMenuItem1";
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(221, 6);
+            // 
             // loadConfigurationToolStripMenuItem
             // 
             this.loadConfigurationToolStripMenuItem.Name = "loadConfigurationToolStripMenuItem";
-            this.loadConfigurationToolStripMenuItem.Size = new System.Drawing.Size(172, 22);
-            this.loadConfigurationToolStripMenuItem.Text = "&Load cascade set...";
+            this.loadConfigurationToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.O)));
+            this.loadConfigurationToolStripMenuItem.Size = new System.Drawing.Size(224, 22);
+            this.loadConfigurationToolStripMenuItem.Text = "&Open cascade set...";
+            this.loadConfigurationToolStripMenuItem.Click += new System.EventHandler(this.loadConfigurationToolStripMenuItem_Click);
             // 
             // saveConfigurationToolStripMenuItem
             // 
             this.saveConfigurationToolStripMenuItem.Name = "saveConfigurationToolStripMenuItem";
-            this.saveConfigurationToolStripMenuItem.Size = new System.Drawing.Size(172, 22);
-            this.saveConfigurationToolStripMenuItem.Text = "&Save cascade set...";
+            this.saveConfigurationToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.S)));
+            this.saveConfigurationToolStripMenuItem.Size = new System.Drawing.Size(224, 22);
+            this.saveConfigurationToolStripMenuItem.Text = "&Save cascade set as...";
+            this.saveConfigurationToolStripMenuItem.Click += new System.EventHandler(this.saveConfigurationToolStripMenuItem_Click);
             // 
             // toolStripMenuItem2
             // 
             this.toolStripMenuItem2.Name = "toolStripMenuItem2";
-            this.toolStripMenuItem2.Size = new System.Drawing.Size(169, 6);
+            this.toolStripMenuItem2.Size = new System.Drawing.Size(221, 6);
             // 
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
             this.exitToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Alt | System.Windows.Forms.Keys.F4)));
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(172, 22);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(224, 22);
             this.exitToolStripMenuItem.Text = "&Exit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 
@@ -254,13 +306,35 @@
             // cascadeToolStripMenuItem
             // 
             this.cascadeToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.fileToolStripMenuItem1,
-            this.duplicateCurrentToolStripMenuItem,
+            this.addNewToolStripMenuItem,
+            this.duplicateSelectedToolStripMenuItem,
             this.toolStripMenuItem3,
             this.removeSelectedToolStripMenuItem});
             this.cascadeToolStripMenuItem.Name = "cascadeToolStripMenuItem";
             this.cascadeToolStripMenuItem.Size = new System.Drawing.Size(63, 20);
             this.cascadeToolStripMenuItem.Text = "&Cascade";
+            // 
+            // addNewToolStripMenuItem
+            // 
+            this.addNewToolStripMenuItem.Name = "addNewToolStripMenuItem";
+            this.addNewToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
+            | System.Windows.Forms.Keys.C)));
+            this.addNewToolStripMenuItem.Size = new System.Drawing.Size(214, 22);
+            this.addNewToolStripMenuItem.Text = "Add &new...";
+            this.addNewToolStripMenuItem.Click += new System.EventHandler(this.addNewToolStripMenuItem_Click);
+            // 
+            // duplicateSelectedToolStripMenuItem
+            // 
+            this.duplicateSelectedToolStripMenuItem.Name = "duplicateSelectedToolStripMenuItem";
+            this.duplicateSelectedToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.D)));
+            this.duplicateSelectedToolStripMenuItem.Size = new System.Drawing.Size(214, 22);
+            this.duplicateSelectedToolStripMenuItem.Text = "&Duplicate selected";
+            this.duplicateSelectedToolStripMenuItem.Click += new System.EventHandler(this.duplicateCurrentToolStripMenuItem_Click);
+            // 
+            // toolStripMenuItem3
+            // 
+            this.toolStripMenuItem3.Name = "toolStripMenuItem3";
+            this.toolStripMenuItem3.Size = new System.Drawing.Size(211, 6);
             // 
             // removeSelectedToolStripMenuItem
             // 
@@ -282,7 +356,7 @@
             // 
             this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
             this.aboutToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.F1;
-            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(126, 22);
             this.aboutToolStripMenuItem.Text = "About";
             this.aboutToolStripMenuItem.Click += new System.EventHandler(this.aboutToolStripMenuItem_Click);
             // 
@@ -298,69 +372,12 @@
             this.timerClear.Interval = 1000;
             this.timerClear.Tick += new System.EventHandler(this.timerClear_Tick);
             // 
-            // toolStripMenuItem3
+            // appendCascadeSetToolStripMenuItem
             // 
-            this.toolStripMenuItem3.Name = "toolStripMenuItem3";
-            this.toolStripMenuItem3.Size = new System.Drawing.Size(211, 6);
-            // 
-            // fileToolStripMenuItem1
-            // 
-            this.fileToolStripMenuItem1.Name = "fileToolStripMenuItem1";
-            this.fileToolStripMenuItem1.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
-            | System.Windows.Forms.Keys.C)));
-            this.fileToolStripMenuItem1.Size = new System.Drawing.Size(214, 22);
-            this.fileToolStripMenuItem1.Text = "Add &new...";
-            this.fileToolStripMenuItem1.Click += new System.EventHandler(this.fileToolStripMenuItem1_Click);
-            // 
-            // duplicateCurrentToolStripMenuItem
-            // 
-            this.duplicateCurrentToolStripMenuItem.Name = "duplicateCurrentToolStripMenuItem";
-            this.duplicateCurrentToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.D)));
-            this.duplicateCurrentToolStripMenuItem.Size = new System.Drawing.Size(214, 22);
-            this.duplicateCurrentToolStripMenuItem.Text = "&Duplicate selected";
-            this.duplicateCurrentToolStripMenuItem.Click += new System.EventHandler(this.duplicateCurrentToolStripMenuItem_Click);
-            // 
-            // newToolStripMenuItem
-            // 
-            this.newToolStripMenuItem.Name = "newToolStripMenuItem";
-            this.newToolStripMenuItem.Size = new System.Drawing.Size(172, 22);
-            this.newToolStripMenuItem.Text = "&New";
-            // 
-            // toolStripMenuItem1
-            // 
-            this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-            this.toolStripMenuItem1.Size = new System.Drawing.Size(169, 6);
-            // 
-            // flowLayoutPanel1
-            // 
-            this.flowLayoutPanel1.Controls.Add(this.linkLabel2);
-            this.flowLayoutPanel1.Controls.Add(this.linkLabel1);
-            this.flowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.flowLayoutPanel1.FlowDirection = System.Windows.Forms.FlowDirection.RightToLeft;
-            this.flowLayoutPanel1.Location = new System.Drawing.Point(3, 30);
-            this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-            this.flowLayoutPanel1.Size = new System.Drawing.Size(356, 14);
-            this.flowLayoutPanel1.TabIndex = 2;
-            // 
-            // linkLabel1
-            // 
-            this.linkLabel1.AutoSize = true;
-            this.linkLabel1.Location = new System.Drawing.Point(225, 0);
-            this.linkLabel1.Name = "linkLabel1";
-            this.linkLabel1.Size = new System.Drawing.Size(70, 13);
-            this.linkLabel1.TabIndex = 0;
-            this.linkLabel1.TabStop = true;
-            this.linkLabel1.Text = "Add cascade";
-            // 
-            // linkLabel2
-            // 
-            this.linkLabel2.AutoSize = true;
-            this.linkLabel2.Location = new System.Drawing.Point(301, 0);
-            this.linkLabel2.Name = "linkLabel2";
-            this.linkLabel2.Size = new System.Drawing.Size(52, 13);
-            this.linkLabel2.TabIndex = 1;
-            this.linkLabel2.TabStop = true;
-            this.linkLabel2.Text = "Duplicate";
+            this.appendCascadeSetToolStripMenuItem.Name = "appendCascadeSetToolStripMenuItem";
+            this.appendCascadeSetToolStripMenuItem.Size = new System.Drawing.Size(224, 22);
+            this.appendCascadeSetToolStripMenuItem.Text = "&Append cascade set...";
+            this.appendCascadeSetToolStripMenuItem.Click += new System.EventHandler(this.appendCascadeSetToolStripMenuItem_Click);
             // 
             // FormMain
             // 
@@ -380,12 +397,12 @@
             ((System.ComponentModel.ISupportInitialize)(this.splitContainerMain)).EndInit();
             this.splitContainerMain.ResumeLayout(false);
             this.tableLayoutPanel1.ResumeLayout(false);
+            this.flowLayoutPanel1.ResumeLayout(false);
+            this.flowLayoutPanel1.PerformLayout();
             this.statusStrip1.ResumeLayout(false);
             this.statusStrip1.PerformLayout();
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
-            this.flowLayoutPanel1.ResumeLayout(false);
-            this.flowLayoutPanel1.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -417,13 +434,14 @@
         private System.Windows.Forms.ToolStripMenuItem loadImageToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem loadnextToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem3;
-        private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem1;
-        private System.Windows.Forms.ToolStripMenuItem duplicateCurrentToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem addNewToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem duplicateSelectedToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem newToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem1;
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
-        private System.Windows.Forms.LinkLabel linkLabel2;
-        private System.Windows.Forms.LinkLabel linkLabel1;
+        private System.Windows.Forms.LinkLabel linkLabelDuplicateSelected;
+        private System.Windows.Forms.LinkLabel linkLabelAddCascade;
+        private System.Windows.Forms.ToolStripMenuItem appendCascadeSetToolStripMenuItem;
     }
 }
 

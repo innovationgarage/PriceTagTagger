@@ -7,11 +7,30 @@ using System.Windows.Forms;
 
 namespace PriceTagTagger
 {
-    internal class Cascade
+    public class Cascade
     {
-        [Category("Display"), DisplayName("(Name)")]
+        public Cascade()
+        {
+            DetectorMinSize = new Size(10, 10);
+            DetectorMaxSize = new Size(1000, 1000);
+            MarkersBorderSize = 1;
+            DetectorScaleFactor = 1.2F;
+            DetectorMinNeighbors = 3;
+            MarkersBorderColor = Color.Fuchsia;
+            Enabled = true;
+        }
+
+        [Category("Display"), DisplayName("Name")]
         [Description("Descriptive name for the current cascade settings")]
         public string Name { get; set; }
+
+        [Category("Display")]
+        [Description("Enable to see the results in the image of this cascade")]
+        public bool Enabled { get; set; }
+
+        [Category("Display")]
+        [Description("Layer for drawing the output results")]
+        public short ZOrder { get; set; }
 
         [Category("Model")]
         [Description("Path pointing to the Cascade XML file")]
@@ -39,9 +58,18 @@ namespace PriceTagTagger
         public override string ToString()
         {
             // TODO: Clean
-            return string.IsNullOrEmpty(Name) ? (string.IsNullOrEmpty(CascadePath)?"undefined": 
-                $"'{Path.GetFileName(CascadePath)}' (from {Path.GetFileName(Path.GetDirectoryName(Path.GetDirectoryName(CascadePath)))}/{Path.GetFileName(Path.GetDirectoryName(CascadePath))})"
-            ) : Name;
+            try
+            {
+                return string.IsNullOrEmpty(Name)
+                    ? (string.IsNullOrEmpty(CascadePath)
+                        ? string.Empty
+                        : $"'{Path.GetFileName(CascadePath)}' from {Path.GetFileName(Path.GetDirectoryName(Path.GetDirectoryName(CascadePath)))}/{Path.GetFileName(Path.GetDirectoryName(CascadePath))}"
+                    )
+                    : Name;
+            }
+            catch { }
+
+            return "Invalid cascade file";
         }
 
         public Cascade Clone()
