@@ -15,6 +15,7 @@ namespace PriceTagTagger
         private bool _processAgain;
         private readonly List<Cascade> _cascades;
         private string _image;
+        private int _selected = 0;
 
         public FormMain()
         {
@@ -41,8 +42,9 @@ namespace PriceTagTagger
 
         private void UpdateCurrent()
         {
-            propertyGridSettings.SelectedObject = _cascades[0];
+            propertyGridSettings.SelectedObject = _cascades[_selected];
             ProcessCurrentImage();
+            UpdateGUI();
         }
 
         private void ProcessNextImage()
@@ -84,7 +86,7 @@ namespace PriceTagTagger
 
         private void backgroundWorkerLoadImage_DoWork(object sender, DoWorkEventArgs e)
         {
-            var detector = new CascadeClassifier(_cascades[0].CascadePath);
+            var detector = new CascadeClassifier(_cascades[_selected].CascadePath);
             //var image = new UMat(_settings.ImagePath, ImreadModes.Color); //UMat version
             //var bmp = Accord.Imaging.Image.FromFile(_settings.ImagePath);
 
@@ -100,13 +102,13 @@ namespace PriceTagTagger
                 //normalizes brightness and increases contrast of the image
                 CvInvoke.EqualizeHist(ugray, ugray);
                  
-                detectedObjects = detector.DetectMultiScale(ugray, _cascades[0].DetectorScaleFactor, 
-                    _cascades[0].DetectorMinNeighbors, _cascades[0].DetectorMinSize, _cascades[0].DetectorMaxSize);
+                detectedObjects = detector.DetectMultiScale(ugray, _cascades[_selected].DetectorScaleFactor, 
+                    _cascades[_selected].DetectorMinNeighbors, _cascades[_selected].DetectorMinSize, _cascades[_selected].DetectorMaxSize);
             }
 
             foreach(var d in detectedObjects)
             {
-                CvInvoke.Rectangle(image, d, new Bgr(_cascades[0].MarkersBorderColor).MCvScalar, _cascades[0].MarkersBorderSize);
+                CvInvoke.Rectangle(image, d, new Bgr(_cascades[_selected].MarkersBorderColor).MCvScalar, _cascades[_selected].MarkersBorderSize);
             }
 
             e.Result = image.Bitmap;
@@ -172,18 +174,18 @@ namespace PriceTagTagger
             //var prev = comboBoxSelectedCascade.SelectedIndex;
             comboBoxSelectedCascade.Items.Clear();
             comboBoxSelectedCascade.Items.AddRange(_cascades.ToArray());
-            //comboBoxSelectedCascade.SelectedIndex = prev;
+            comboBoxSelectedCascade.SelectedIndex = _selected;
         }
 
-        private void opencascadeToolStripMenuItem_Click_1(object sender, EventArgs e)
+        /*private void opencascadeToolStripMenuItem_Click_1(object sender, EventArgs e)
         {
             var d = new OpenFileDialog() { Filter = "XML Cascade definition | *.xml" };
             if (d.ShowDialog() == DialogResult.OK)
             {
-                _cascades[0].CascadePath = d.FileName;
+                _cascades[_selected].CascadePath = d.FileName;
                 UpdateCurrent();
             }
-        }
+        }*/
 
         private void loadnextToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -198,6 +200,31 @@ namespace PriceTagTagger
         private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
         {
             MessageBox.Show("Innovation Garage AS");
+        }
+
+        private void removeSelectedToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void duplicateCurrentToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            _cascades.Add(_cascades[_selected].Clone());
+            _selected = _cascades.Count - 1;
+            UpdateGUI();
+        }
+
+        private void fileToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            var tmp = new CascadeFileNameEditor().EditValue(null, "") as string;
+
+            if (string.IsNullOrEmpty(tmp) || File.Exists(tmp))
+            {
+                _cascades.Add(_cascades[_selected].Clone());
+                _selected = _cascades.Count - 1;
+                _cascades[_selected].CascadePath = tmp;
+                UpdateGUI();
+            }
         }
     }
 }
