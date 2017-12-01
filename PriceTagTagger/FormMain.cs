@@ -123,10 +123,32 @@ namespace PriceTagTagger
             {
                 CvInvoke.Rectangle(image, d.Item1, new Bgr(d.Item2.MarkersBorderColor).MCvScalar,
                     d.Item2.MarkersBorderSize);
+
+                AdjustPosition(d.Item1, d.Item2.LabelPosition, out var p);
+
+                CvInvoke.PutText(image, d.Item2.LabelText, p, FontFace.HersheyPlain,d.Item2.MarkersBorderSize*0.5,
+                    new Bgr(d.Item2.MarkersBorderColor).MCvScalar, d.Item2.MarkersBorderSize/2, LineType.AntiAlias);
             }
 
             e.Result = new Bitmap(image.Bitmap);
             backgroundWorkerLoadImage.ReportProgress(90);
+        }
+
+        private void AdjustPosition(Rectangle rect, ContentAlignment contentAlignment, out Point point)
+        {
+            switch (contentAlignment)
+            {
+                case ContentAlignment.TopLeft:point = new Point(rect.Left, rect.Top); break;
+                case ContentAlignment.TopCenter:point = new Point((rect.Left + rect.Right) / 2, rect.Top); break;
+                case ContentAlignment.TopRight:point = new Point(rect.Right, rect.Top); break;
+                case ContentAlignment.MiddleLeft:point = new Point(rect.Left, (rect.Top + rect.Bottom) / 2); break;
+                case ContentAlignment.MiddleCenter:point = new Point((rect.Left + rect.Right) / 2, (rect.Top + rect.Bottom) / 2); break;
+                case ContentAlignment.MiddleRight:point = new Point(rect.Right, (rect.Top + rect.Bottom) / 2); break;
+                case ContentAlignment.BottomLeft:point = new Point(rect.Left, rect.Bottom); break;
+                case ContentAlignment.BottomCenter:point = new Point((rect.Left + rect.Right) / 2, rect.Bottom); break;
+                case ContentAlignment.BottomRight:point = new Point(rect.Right, rect.Bottom); break;
+                default:throw new ArgumentOutOfRangeException(nameof(contentAlignment), contentAlignment, null);
+            }
         }
 
         private static int ZOrderComparer(Tuple<Rectangle, Cascade> x, Tuple<Rectangle, Cascade> y)
@@ -213,6 +235,8 @@ namespace PriceTagTagger
             linkLabelDuplicateSelected.Enabled = en;
             duplicateSelectedToolStripMenuItem.Enabled = en;
             removeSelectedToolStripMenuItem.Enabled = en;
+            appendCascadeSetToolStripMenuItem.Enabled = en;
+            saveConfigurationToolStripMenuItem.Enabled = en;
 
             var imEn = !string.IsNullOrEmpty(_image) && File.Exists(_image);
             loadnextToolStripMenuItem.Enabled = imEn;
@@ -239,7 +263,7 @@ namespace PriceTagTagger
 
         private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("Innovation Garage AS");
+            MessageBox.Show("Innovation Garage AS", "About");
         }
 
         private void duplicateCurrentToolStripMenuItem_Click(object sender, EventArgs e)
@@ -378,11 +402,6 @@ namespace PriceTagTagger
         private void processAgainToolStripMenuItem_Click(object sender, EventArgs e)
         {
             ProcessCurrentImage();
-        }
-
-        private void comboBoxSelectedCascade_DrawItem(object sender, DrawItemEventArgs e)
-        {
-
         }
 
         private void comboBoxSelectedCascade_ItemCheck(object sender, ItemCheckEventArgs e)

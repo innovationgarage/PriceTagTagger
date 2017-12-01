@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Drawing.Design;
 using System.IO;
 using System.Windows.Forms;
+using System.Xml.Serialization;
 
 namespace PriceTagTagger
 {
@@ -54,7 +55,16 @@ namespace PriceTagTagger
         public int MarkersBorderSize { get; set; }
 
         [Category("Markers")]
+        [XmlIgnore]
         public Color MarkersBorderColor { get; set; }
+
+        [Category("Internal"), ReadOnly(true)]
+        [XmlElement("MarkersBorderColor")]
+        public int MarkersBorderColorInternal
+        {
+            get => MarkersBorderColor.ToArgb();
+            set => MarkersBorderColor = Color.FromArgb(value);
+        }
 
         [Category("Detector")]
         public float DetectorScaleFactor { get; set; }
