@@ -34,11 +34,11 @@
             this.panel1 = new System.Windows.Forms.Panel();
             this.splitContainerMain = new System.Windows.Forms.SplitContainer();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
-            this.comboBoxSelectedCascade = new System.Windows.Forms.ComboBox();
             this.propertyGridSettings = new System.Windows.Forms.PropertyGrid();
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.linkLabelDuplicateSelected = new System.Windows.Forms.LinkLabel();
             this.linkLabelAddCascade = new System.Windows.Forms.LinkLabel();
+            this.linkLabelOpenImage = new System.Windows.Forms.LinkLabel();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripProgressBarLoading = new System.Windows.Forms.ToolStripProgressBar();
@@ -47,6 +47,7 @@
             this.newToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
             this.loadConfigurationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.appendCascadeSetToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveConfigurationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripSeparator();
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -62,7 +63,9 @@
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.backgroundWorkerLoadImage = new System.ComponentModel.BackgroundWorker();
             this.timerClear = new System.Windows.Forms.Timer(this.components);
-            this.appendCascadeSetToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem4 = new System.Windows.Forms.ToolStripSeparator();
+            this.processAgainToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.comboBoxSelectedCascade = new System.Windows.Forms.CheckedListBox();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxViewer)).BeginInit();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainerMain)).BeginInit();
@@ -110,6 +113,7 @@
             // 
             // splitContainerMain.Panel2
             // 
+            this.splitContainerMain.Panel2.Controls.Add(this.linkLabelOpenImage);
             this.splitContainerMain.Panel2.Controls.Add(this.pictureBoxViewer);
             this.splitContainerMain.Size = new System.Drawing.Size(1111, 683);
             this.splitContainerMain.SplitterDistance = 360;
@@ -120,35 +124,25 @@
             // 
             this.tableLayoutPanel1.ColumnCount = 1;
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-            this.tableLayoutPanel1.Controls.Add(this.comboBoxSelectedCascade, 0, 0);
             this.tableLayoutPanel1.Controls.Add(this.propertyGridSettings, 0, 2);
             this.tableLayoutPanel1.Controls.Add(this.flowLayoutPanel1, 0, 1);
+            this.tableLayoutPanel1.Controls.Add(this.comboBoxSelectedCascade, 0, 0);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
             this.tableLayoutPanel1.RowCount = 3;
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 120F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel1.Size = new System.Drawing.Size(360, 683);
             this.tableLayoutPanel1.TabIndex = 3;
             // 
-            // comboBoxSelectedCascade
-            // 
-            this.comboBoxSelectedCascade.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.comboBoxSelectedCascade.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.comboBoxSelectedCascade.FormattingEnabled = true;
-            this.comboBoxSelectedCascade.Location = new System.Drawing.Point(3, 3);
-            this.comboBoxSelectedCascade.Name = "comboBoxSelectedCascade";
-            this.comboBoxSelectedCascade.Size = new System.Drawing.Size(356, 21);
-            this.comboBoxSelectedCascade.TabIndex = 1;
-            // 
             // propertyGridSettings
             // 
             this.propertyGridSettings.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.propertyGridSettings.Location = new System.Drawing.Point(3, 50);
+            this.propertyGridSettings.Location = new System.Drawing.Point(3, 143);
             this.propertyGridSettings.Name = "propertyGridSettings";
-            this.propertyGridSettings.Size = new System.Drawing.Size(356, 630);
+            this.propertyGridSettings.Size = new System.Drawing.Size(356, 537);
             this.propertyGridSettings.TabIndex = 0;
             this.propertyGridSettings.PropertyValueChanged += new System.Windows.Forms.PropertyValueChangedEventHandler(this.propertyGridSettings_PropertyValueChanged);
             // 
@@ -159,7 +153,7 @@
             this.flowLayoutPanel1.Controls.Add(this.linkLabelAddCascade);
             this.flowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowLayoutPanel1.FlowDirection = System.Windows.Forms.FlowDirection.RightToLeft;
-            this.flowLayoutPanel1.Location = new System.Drawing.Point(3, 30);
+            this.flowLayoutPanel1.Location = new System.Drawing.Point(3, 123);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
             this.flowLayoutPanel1.Size = new System.Drawing.Size(356, 14);
             this.flowLayoutPanel1.TabIndex = 2;
@@ -185,6 +179,18 @@
             this.linkLabelAddCascade.TabStop = true;
             this.linkLabelAddCascade.Text = "Add cascade";
             this.linkLabelAddCascade.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabelAddCascade_LinkClicked);
+            // 
+            // linkLabelOpenImage
+            // 
+            this.linkLabelOpenImage.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.linkLabelOpenImage.Location = new System.Drawing.Point(0, 0);
+            this.linkLabelOpenImage.Name = "linkLabelOpenImage";
+            this.linkLabelOpenImage.Size = new System.Drawing.Size(747, 683);
+            this.linkLabelOpenImage.TabIndex = 2;
+            this.linkLabelOpenImage.TabStop = true;
+            this.linkLabelOpenImage.Text = "Open image";
+            this.linkLabelOpenImage.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.linkLabelOpenImage.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabelOpenImage_LinkClicked);
             // 
             // statusStrip1
             // 
@@ -257,6 +263,13 @@
             this.loadConfigurationToolStripMenuItem.Text = "&Open cascade set...";
             this.loadConfigurationToolStripMenuItem.Click += new System.EventHandler(this.loadConfigurationToolStripMenuItem_Click);
             // 
+            // appendCascadeSetToolStripMenuItem
+            // 
+            this.appendCascadeSetToolStripMenuItem.Name = "appendCascadeSetToolStripMenuItem";
+            this.appendCascadeSetToolStripMenuItem.Size = new System.Drawing.Size(224, 22);
+            this.appendCascadeSetToolStripMenuItem.Text = "&Append cascade set...";
+            this.appendCascadeSetToolStripMenuItem.Click += new System.EventHandler(this.appendCascadeSetToolStripMenuItem_Click);
+            // 
             // saveConfigurationToolStripMenuItem
             // 
             this.saveConfigurationToolStripMenuItem.Name = "saveConfigurationToolStripMenuItem";
@@ -282,7 +295,9 @@
             // 
             this.imageToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.loadImageToolStripMenuItem,
-            this.loadnextToolStripMenuItem});
+            this.loadnextToolStripMenuItem,
+            this.toolStripMenuItem4,
+            this.processAgainToolStripMenuItem});
             this.imageToolStripMenuItem.Name = "imageToolStripMenuItem";
             this.imageToolStripMenuItem.Size = new System.Drawing.Size(52, 20);
             this.imageToolStripMenuItem.Text = "&Image";
@@ -372,12 +387,26 @@
             this.timerClear.Interval = 1000;
             this.timerClear.Tick += new System.EventHandler(this.timerClear_Tick);
             // 
-            // appendCascadeSetToolStripMenuItem
+            // toolStripMenuItem4
             // 
-            this.appendCascadeSetToolStripMenuItem.Name = "appendCascadeSetToolStripMenuItem";
-            this.appendCascadeSetToolStripMenuItem.Size = new System.Drawing.Size(224, 22);
-            this.appendCascadeSetToolStripMenuItem.Text = "&Append cascade set...";
-            this.appendCascadeSetToolStripMenuItem.Click += new System.EventHandler(this.appendCascadeSetToolStripMenuItem_Click);
+            this.toolStripMenuItem4.Name = "toolStripMenuItem4";
+            this.toolStripMenuItem4.Size = new System.Drawing.Size(188, 6);
+            // 
+            // processAgainToolStripMenuItem
+            // 
+            this.processAgainToolStripMenuItem.Name = "processAgainToolStripMenuItem";
+            this.processAgainToolStripMenuItem.Size = new System.Drawing.Size(191, 22);
+            this.processAgainToolStripMenuItem.Text = "Run cascades";
+            this.processAgainToolStripMenuItem.Click += new System.EventHandler(this.processAgainToolStripMenuItem_Click);
+            // 
+            // comboBoxSelectedCascade
+            // 
+            this.comboBoxSelectedCascade.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.comboBoxSelectedCascade.FormattingEnabled = true;
+            this.comboBoxSelectedCascade.Location = new System.Drawing.Point(3, 3);
+            this.comboBoxSelectedCascade.Name = "comboBoxSelectedCascade";
+            this.comboBoxSelectedCascade.Size = new System.Drawing.Size(356, 114);
+            this.comboBoxSelectedCascade.TabIndex = 3;
             // 
             // FormMain
             // 
@@ -424,7 +453,6 @@
         private System.Windows.Forms.PropertyGrid propertyGridSettings;
         private System.Windows.Forms.ToolStripMenuItem helpToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
-        private System.Windows.Forms.ComboBox comboBoxSelectedCascade;
         private System.Windows.Forms.ToolStripMenuItem cascadeToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem removeSelectedToolStripMenuItem;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
@@ -442,6 +470,10 @@
         private System.Windows.Forms.LinkLabel linkLabelDuplicateSelected;
         private System.Windows.Forms.LinkLabel linkLabelAddCascade;
         private System.Windows.Forms.ToolStripMenuItem appendCascadeSetToolStripMenuItem;
+        private System.Windows.Forms.LinkLabel linkLabelOpenImage;
+        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem4;
+        private System.Windows.Forms.ToolStripMenuItem processAgainToolStripMenuItem;
+        private System.Windows.Forms.CheckedListBox comboBoxSelectedCascade;
     }
 }
 

@@ -7,6 +7,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Windows.Forms;
 using System.Xml.Serialization;
 
@@ -15,7 +16,7 @@ namespace PriceTagTagger
     public partial class FormMain : Form
     {
         private bool _processAgain;
-        private List<Cascade> _cascades;
+        private readonly List<Cascade> _cascades;
         private string _image;
         private int _selected = 0;
 
@@ -40,7 +41,7 @@ namespace PriceTagTagger
             ProcessCurrentImage();
         }
 
-        private string GetNextFile(string currentImage)
+        private static string GetNextFile(string currentImage)
         {
             var files = Directory.GetFiles(Path.GetDirectoryName(currentImage));
 
@@ -89,7 +90,7 @@ namespace PriceTagTagger
                 if (!c.Enabled)
                     continue;
 
-                //try
+                try
                 {
                     var detector = new CascadeClassifier(c.CascadePath);
 
@@ -99,7 +100,7 @@ namespace PriceTagTagger
                     {
                         CvInvoke.CvtColor(image, ugray, ColorConversion.Bgr2Gray);
 
-                        //normalizes brightness and increases contrast of the image
+                        // Normalizes brightness and increases contrast of the image
                         CvInvoke.EqualizeHist(ugray, ugray);
 
                         detectedObjects = detector.DetectMultiScale(ugray, c.DetectorScaleFactor,
@@ -108,7 +109,11 @@ namespace PriceTagTagger
 
                     detected.AddRange(detectedObjects.Select(r => Tuple.Create(r, c)));
                 }
-                //catch{ }
+                catch (Exception ex)
+                {
+                    backgroundWorkerLoadImage.ReportProgress(-1, "Error applying '" + c.Name + "': " + ex.Message);
+                    Thread.Sleep(2000);
+                }
             }
 
             // Apply ZOrder
@@ -129,7 +134,7 @@ namespace PriceTagTagger
             return x.Item2.ZOrder.CompareTo(y.Item2.ZOrder);
         }
 
-        long Map(long x, long in_min, long in_max, long out_min, long out_max)
+        private static long Map(long x, long in_min, long in_max, long out_min, long out_max)
         {
             return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
         }
@@ -159,7 +164,10 @@ namespace PriceTagTagger
 
         private void backgroundWorkerLoadImage_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
-            toolStripProgressBarLoading.Value = e.ProgressPercentage;
+            if (e.ProgressPercentage >= 0)
+                toolStripProgressBarLoading.Value = e.ProgressPercentage;
+            else
+                toolStripStatusLabel1.Text = e.UserState as string;
         }
 
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
@@ -174,7 +182,12 @@ namespace PriceTagTagger
 
         private void loadImageToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var d = new OpenFileDialog() { Filter = "Image files (*.jpg, *.jpeg, *.jpe, *.jfif, *.png) | *.jpg; *.jpeg; *.jpe; *.jfif; *.png" };
+            OpenImage();
+        }
+
+        private void OpenImage()
+        {
+            var d = new OpenFileDialog { Filter = "Image files (*.jpg, *.jpeg, *.jpe, *.jfif, *.png) | *.jpg; *.jpeg; *.jpe; *.jfif; *.png" };
             if (d.ShowDialog() == DialogResult.OK)
             {
                 _image = d.FileName;
@@ -182,15 +195,10 @@ namespace PriceTagTagger
             }
         }
 
-        private void emptyToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            _cascades.Add(new Cascade());
-            UpdateGUI();
-        }
-
         private void UpdateGUI()
         {
             comboBoxSelectedCascade.SelectedValueChanged -= comboBoxSelectedCascade_SelectedValueChanged;
+            comboBoxSelectedCascade.ItemCheck -= comboBoxSelectedCascade_ItemCheck;
             comboBoxSelectedCascade.Items.Clear();
 
             var en = true;
@@ -198,16 +206,21 @@ namespace PriceTagTagger
             if (_cascades == null || _cascades.Count == 0)
                 en = false;
             else
-                comboBoxSelectedCascade.Items.AddRange(_cascades.ToArray());
+                foreach (var c in _cascades)
+                    comboBoxSelectedCascade.Items.Add(c, c.Enabled);
 
             comboBoxSelectedCascade.Enabled = en;
             linkLabelDuplicateSelected.Enabled = en;
             duplicateSelectedToolStripMenuItem.Enabled = en;
             removeSelectedToolStripMenuItem.Enabled = en;
 
-            loadnextToolStripMenuItem.Enabled = !string.IsNullOrEmpty(_image) && File.Exists(_image);
+            var imEn = !string.IsNullOrEmpty(_image) && File.Exists(_image);
+            loadnextToolStripMenuItem.Enabled = imEn;
+            processAgainToolStripMenuItem.Enabled = imEn;
+            linkLabelOpenImage.Visible = !imEn;
 
             comboBoxSelectedCascade.SelectedValueChanged += comboBoxSelectedCascade_SelectedValueChanged;
+            comboBoxSelectedCascade.ItemCheck += comboBoxSelectedCascade_ItemCheck;
 
             if (comboBoxSelectedCascade.Items.Count > 0) 
             comboBoxSelectedCascade.SelectedIndex = _selected;
@@ -239,7 +252,7 @@ namespace PriceTagTagger
         {
             _cascades.Add((_cascades == null || _cascades.Count == 0) ? new Cascade(): _cascades[_selected].Clone());
             _selected = _cascades.Count - 1;
-            _cascades[_selected].Name = string.IsNullOrEmpty(_cascades[_selected].ToString()) ? string.Empty: _cascades[_selected] + " (copy)";
+            //_cascades[_selected].Name = _cascades[_selected].ToString() + " (copy)";
         }
 
         private void addNewToolStripMenuItem_Click(object sender, EventArgs e)
@@ -283,44 +296,58 @@ namespace PriceTagTagger
 
         private void saveConfigurationToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var d = new SaveFileDialog { Filter = "XML File|*.xml" };
-
-            if (d.ShowDialog() == DialogResult.OK)
+            try
             {
-                Serialization(_cascades, d.FileName);
+                var d = new SaveFileDialog {Filter = "XML File|*.xml"};
+
+                if (d.ShowDialog() == DialogResult.OK)
+                    Serialization(_cascades, d.FileName);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Cannot save cascade set", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
         private void loadConfigurationToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var d = new OpenFileDialog { Filter = "XML File|*.xml" };
-
-            if (d.ShowDialog() == DialogResult.OK)
-            {
-                _cascades = Deserialize(d.FileName);
-            }
-
-            UpdateCurrent();
+            AddOrAppendCascadeFromFile();
         }
 
+        private void AddOrAppendCascadeFromFile(bool append = false)
+        {
+            try
+            {
+                var d = new OpenFileDialog { Filter = "XML File|*.xml" };
+
+                if (d.ShowDialog() == DialogResult.OK)
+                {
+                    if (!append)
+                        _cascades.Clear();
+                    _cascades.AddRange(Deserialize(d.FileName));
+                }
+
+                UpdateCurrent();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Cannot open cascade set", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
 
         // From: https://stackoverflow.com/questions/5005900/how-to-serialize-listt
         public List<Cascade> Deserialize(string a_fileName)
         {
-            XmlSerializer deserializer = new XmlSerializer(typeof(List<Cascade>));
-
-            TextReader reader = new StreamReader(a_fileName);
-
-            object obj = deserializer.Deserialize(reader);
-
+            var deserializer = new XmlSerializer(typeof(List<Cascade>));
+            var reader = new StreamReader(a_fileName);
+            var obj = deserializer.Deserialize(reader);
             reader.Close();
-
-            return (List<Cascade>)obj;
+            return (List<Cascade>) obj;
         }
 
         public void Serialization(List<Cascade> a_stations, string a_fileName)
         {
-            XmlSerializer serializer = new XmlSerializer(typeof(List<Cascade>));
+            var serializer = new XmlSerializer(typeof(List<Cascade>));
 
             using (var stream = File.OpenWrite(a_fileName))
             {
@@ -328,16 +355,40 @@ namespace PriceTagTagger
             }
         }
 
-
-
         private void newToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            if (_cascades.Count != 0 && MessageBox.Show("Are you sure?", "Clear current cascades",
+                    MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
+                return;
 
+            _cascades.Clear();
+            UpdateCurrent();
         }
 
         private void appendCascadeSetToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            AddOrAppendCascadeFromFile(true);
+        }
 
+        private void linkLabelOpenImage_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            OpenImage();
+        }
+
+        private void processAgainToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ProcessCurrentImage();
+        }
+
+        private void comboBoxSelectedCascade_DrawItem(object sender, DrawItemEventArgs e)
+        {
+
+        }
+
+        private void comboBoxSelectedCascade_ItemCheck(object sender, ItemCheckEventArgs e)
+        {
+            _cascades[e.Index].Enabled = e.NewValue == CheckState.Checked;
+            UpdateCurrent();
         }
     }
 }

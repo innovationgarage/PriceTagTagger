@@ -17,12 +17,19 @@ namespace PriceTagTagger
             DetectorScaleFactor = 1.2F;
             DetectorMinNeighbors = 3;
             MarkersBorderColor = Color.Fuchsia;
+            LabelPosition = ContentAlignment.TopLeft;
             Enabled = true;
         }
 
-        [Category("Display"), DisplayName("Name")]
+        [Category("Display")]
         [Description("Descriptive name for the current cascade settings")]
         public string Name { get; set; }
+
+        [Category("Label")]
+        public string LabelText { get; set; }
+
+        [Category("Label")]
+        public ContentAlignment LabelPosition { get; set; }
 
         [Category("Display")]
         [Description("Enable to see the results in the image of this cascade")]
