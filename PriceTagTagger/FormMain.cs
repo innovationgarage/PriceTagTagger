@@ -17,6 +17,8 @@ namespace PriceTagTagger
     {
         private bool _processAgain;
         private readonly List<Cascade> _cascades;
+        private readonly OpenFileDialog openImageDialog, openSetDialog;
+        private readonly SaveFileDialog saveImageDialog, saveSetDialog;
         private string _image;
         private int _selected = 0;
 
@@ -27,6 +29,13 @@ namespace PriceTagTagger
             selectedCascade.GetForeColor += SelectedCascade_GetForeColor;
 
             _cascades = new List<Cascade>();
+
+            // Load and save
+            openImageDialog = new OpenFileDialog { Filter = "Image files (*.jpg, *.jpeg, *.jpe, *.jfif, *.png) | *.jpg; *.jpeg; *.jpe; *.jfif; *.png" };
+            saveImageDialog = new SaveFileDialog { Filter = "PNG image|*.png" };
+            saveSetDialog = new SaveFileDialog { Filter = "XML File|*.xml" };
+            openSetDialog = new OpenFileDialog { Filter = "XML File|*.xml" };
+
             UpdateCurrent();
         }
 
@@ -230,10 +239,9 @@ namespace PriceTagTagger
 
         private void OpenImage()
         {
-            var d = new OpenFileDialog { Filter = "Image files (*.jpg, *.jpeg, *.jpe, *.jfif, *.png) | *.jpg; *.jpeg; *.jpe; *.jfif; *.png" };
-            if (d.ShowDialog() == DialogResult.OK)
+            if (openImageDialog.ShowDialog() == DialogResult.OK)
             {
-                _image = d.FileName;
+                _image = openImageDialog.FileName;
                 UpdateCurrent();
             }
         }
@@ -343,10 +351,8 @@ namespace PriceTagTagger
         {
             try
             {
-                var d = new SaveFileDialog {Filter = "XML File|*.xml"};
-
-                if (d.ShowDialog() == DialogResult.OK)
-                    Serialization(_cascades, d.FileName);
+                if (saveSetDialog.ShowDialog() == DialogResult.OK)
+                    Serialization(_cascades, saveSetDialog.FileName);
             }
             catch (Exception ex)
             {
@@ -363,13 +369,11 @@ namespace PriceTagTagger
         {
             try
             {
-                var d = new OpenFileDialog { Filter = "XML File|*.xml" };
-
-                if (d.ShowDialog() == DialogResult.OK)
+                if (openSetDialog.ShowDialog() == DialogResult.OK)
                 {
                     if (!append)
                         _cascades.Clear();
-                    _cascades.AddRange(Deserialize(d.FileName));
+                    _cascades.AddRange(Deserialize(openSetDialog.FileName));
                 }
 
                 UpdateCurrent();
@@ -429,6 +433,19 @@ namespace PriceTagTagger
         {
             _cascades[e.Index].Enabled = e.NewValue == CheckState.Checked;
             UpdateCurrent();
+        }
+
+        private void saveToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if (saveImageDialog.ShowDialog() == DialogResult.OK)
+                    pictureBoxViewer.Image.Save(saveImageDialog.FileName);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Cannot save the image", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
     }
 }
