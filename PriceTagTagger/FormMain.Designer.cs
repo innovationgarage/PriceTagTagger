@@ -65,7 +65,7 @@
             this.timerClear = new System.Windows.Forms.Timer(this.components);
             this.toolStripMenuItem4 = new System.Windows.Forms.ToolStripSeparator();
             this.processAgainToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.selectedCascade = new System.Windows.Forms.CheckedListBox();
+            this.selectedCascade = new Qodex.CustomCheckedListBox();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxViewer)).BeginInit();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainerMain)).BeginInit();
@@ -473,7 +473,7 @@
         private System.Windows.Forms.LinkLabel linkLabelOpenImage;
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem4;
         private System.Windows.Forms.ToolStripMenuItem processAgainToolStripMenuItem;
-        private System.Windows.Forms.CheckedListBox selectedCascade;
+        private Qodex.CustomCheckedListBox selectedCascade;
     }
 }
 

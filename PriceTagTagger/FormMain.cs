@@ -23,17 +23,30 @@ namespace PriceTagTagger
         public FormMain()
         {
             InitializeComponent();
+            selectedCascade.GetBackColor += SelectedCascade_GetBackColor;
+            selectedCascade.GetForeColor += SelectedCascade_GetForeColor;
 
             _cascades = new List<Cascade>();
             UpdateCurrent();
-
-            selectedCascade.DrawMode = DrawMode.OwnerDrawFixed;
-            selectedCascade.DrawItem += SelectedCascade_DrawItem;
         }
 
-        private void SelectedCascade_DrawItem(object sender, DrawItemEventArgs e)
+        private Color SelectedCascade_GetForeColor(Qodex.CustomCheckedListBox listbox, DrawItemEventArgs e)
         {
-            
+            if(e.Index != -1)
+                return GetOptimizedContrastFromColor(_cascades[e.Index].MarkersBorderColor);
+            return Color.Black;
+        }
+
+        public Color GetOptimizedContrastFromColor(Color c)
+        {
+            return 0.2126 * c.R + 0.7152 * c.G + 0.0722 * c.B < 0.5 ? Color.White : Color.Black;
+        }
+
+        private Color SelectedCascade_GetBackColor(Qodex.CustomCheckedListBox listbox, DrawItemEventArgs e)
+        {
+            if (e.Index != -1)
+                return _cascades[e.Index].MarkersBorderColor;
+            return Color.White;
         }
 
         private void UpdateCurrent()
