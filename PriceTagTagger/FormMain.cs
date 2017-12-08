@@ -26,6 +26,14 @@ namespace PriceTagTagger
 
             _cascades = new List<Cascade>();
             UpdateCurrent();
+
+            selectedCascade.DrawMode = DrawMode.OwnerDrawFixed;
+            selectedCascade.DrawItem += SelectedCascade_DrawItem;
+        }
+
+        private void SelectedCascade_DrawItem(object sender, DrawItemEventArgs e)
+        {
+            
         }
 
         private void UpdateCurrent()
@@ -127,7 +135,7 @@ namespace PriceTagTagger
                 AdjustPosition(d.Item1, d.Item2.LabelPosition, out var p);
 
                 CvInvoke.PutText(image, d.Item2.LabelText, p, FontFace.HersheyPlain,d.Item2.MarkersBorderSize*0.5,
-                    new Bgr(d.Item2.MarkersBorderColor).MCvScalar, d.Item2.MarkersBorderSize/2, LineType.AntiAlias);
+                    new Bgr(d.Item2.MarkersBorderColor).MCvScalar, d.Item2.MarkersBorderSize, LineType.AntiAlias);
             }
 
             e.Result = new Bitmap(image.Bitmap);
@@ -219,9 +227,9 @@ namespace PriceTagTagger
 
         private void UpdateGUI()
         {
-            comboBoxSelectedCascade.SelectedValueChanged -= comboBoxSelectedCascade_SelectedValueChanged;
-            comboBoxSelectedCascade.ItemCheck -= comboBoxSelectedCascade_ItemCheck;
-            comboBoxSelectedCascade.Items.Clear();
+            selectedCascade.SelectedValueChanged -= selectedCascade_SelectedValueChanged;
+            selectedCascade.ItemCheck -= selectedCascade_ItemCheck;
+            selectedCascade.Items.Clear();
 
             var en = true;
 
@@ -229,9 +237,9 @@ namespace PriceTagTagger
                 en = false;
             else
                 foreach (var c in _cascades)
-                    comboBoxSelectedCascade.Items.Add(c, c.Enabled);
+                    selectedCascade.Items.Add(c, c.Enabled);
 
-            comboBoxSelectedCascade.Enabled = en;
+            selectedCascade.Enabled = en;
             linkLabelDuplicateSelected.Enabled = en;
             duplicateSelectedToolStripMenuItem.Enabled = en;
             removeSelectedToolStripMenuItem.Enabled = en;
@@ -243,11 +251,11 @@ namespace PriceTagTagger
             processAgainToolStripMenuItem.Enabled = imEn;
             linkLabelOpenImage.Visible = !imEn;
 
-            comboBoxSelectedCascade.SelectedValueChanged += comboBoxSelectedCascade_SelectedValueChanged;
-            comboBoxSelectedCascade.ItemCheck += comboBoxSelectedCascade_ItemCheck;
+            selectedCascade.SelectedValueChanged += selectedCascade_SelectedValueChanged;
+            selectedCascade.ItemCheck += selectedCascade_ItemCheck;
 
-            if (comboBoxSelectedCascade.Items.Count > 0) 
-            comboBoxSelectedCascade.SelectedIndex = _selected;
+            if (selectedCascade.Items.Count > 0) 
+            selectedCascade.SelectedIndex = _selected;
         }
 
         private void loadnextToolStripMenuItem_Click(object sender, EventArgs e)
@@ -255,10 +263,10 @@ namespace PriceTagTagger
             ProcessNextImage();
         }
 
-        private void comboBoxSelectedCascade_SelectedValueChanged(object sender, EventArgs e)
+        private void selectedCascade_SelectedValueChanged(object sender, EventArgs e)
         {
-            _selected = comboBoxSelectedCascade.SelectedIndex;
-            propertyGridSettings.SelectedObject = comboBoxSelectedCascade.SelectedItem;
+            _selected = selectedCascade.SelectedIndex;
+            propertyGridSettings.SelectedObject = selectedCascade.SelectedItem;
         }
 
         private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
@@ -404,7 +412,7 @@ namespace PriceTagTagger
             ProcessCurrentImage();
         }
 
-        private void comboBoxSelectedCascade_ItemCheck(object sender, ItemCheckEventArgs e)
+        private void selectedCascade_ItemCheck(object sender, ItemCheckEventArgs e)
         {
             _cascades[e.Index].Enabled = e.NewValue == CheckState.Checked;
             UpdateCurrent();

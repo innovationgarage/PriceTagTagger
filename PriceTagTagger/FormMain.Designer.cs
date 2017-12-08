@@ -65,7 +65,7 @@
             this.timerClear = new System.Windows.Forms.Timer(this.components);
             this.toolStripMenuItem4 = new System.Windows.Forms.ToolStripSeparator();
             this.processAgainToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.comboBoxSelectedCascade = new System.Windows.Forms.CheckedListBox();
+            this.selectedCascade = new System.Windows.Forms.CheckedListBox();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxViewer)).BeginInit();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainerMain)).BeginInit();
@@ -126,12 +126,12 @@
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
             this.tableLayoutPanel1.Controls.Add(this.propertyGridSettings, 0, 2);
             this.tableLayoutPanel1.Controls.Add(this.flowLayoutPanel1, 0, 1);
-            this.tableLayoutPanel1.Controls.Add(this.comboBoxSelectedCascade, 0, 0);
+            this.tableLayoutPanel1.Controls.Add(this.selectedCascade, 0, 0);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
             this.tableLayoutPanel1.RowCount = 3;
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 120F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel1.Size = new System.Drawing.Size(360, 683);
@@ -140,9 +140,9 @@
             // propertyGridSettings
             // 
             this.propertyGridSettings.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.propertyGridSettings.Location = new System.Drawing.Point(3, 143);
+            this.propertyGridSettings.Location = new System.Drawing.Point(3, 149);
             this.propertyGridSettings.Name = "propertyGridSettings";
-            this.propertyGridSettings.Size = new System.Drawing.Size(356, 537);
+            this.propertyGridSettings.Size = new System.Drawing.Size(356, 531);
             this.propertyGridSettings.TabIndex = 0;
             this.propertyGridSettings.PropertyValueChanged += new System.Windows.Forms.PropertyValueChangedEventHandler(this.propertyGridSettings_PropertyValueChanged);
             // 
@@ -153,7 +153,7 @@
             this.flowLayoutPanel1.Controls.Add(this.linkLabelAddCascade);
             this.flowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowLayoutPanel1.FlowDirection = System.Windows.Forms.FlowDirection.RightToLeft;
-            this.flowLayoutPanel1.Location = new System.Drawing.Point(3, 123);
+            this.flowLayoutPanel1.Location = new System.Drawing.Point(3, 129);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
             this.flowLayoutPanel1.Size = new System.Drawing.Size(356, 14);
             this.flowLayoutPanel1.TabIndex = 2;
@@ -399,14 +399,14 @@
             this.processAgainToolStripMenuItem.Text = "Run cascades";
             this.processAgainToolStripMenuItem.Click += new System.EventHandler(this.processAgainToolStripMenuItem_Click);
             // 
-            // comboBoxSelectedCascade
+            // selectedCascade
             // 
-            this.comboBoxSelectedCascade.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.comboBoxSelectedCascade.FormattingEnabled = true;
-            this.comboBoxSelectedCascade.Location = new System.Drawing.Point(3, 3);
-            this.comboBoxSelectedCascade.Name = "comboBoxSelectedCascade";
-            this.comboBoxSelectedCascade.Size = new System.Drawing.Size(356, 114);
-            this.comboBoxSelectedCascade.TabIndex = 3;
+            this.selectedCascade.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.selectedCascade.FormattingEnabled = true;
+            this.selectedCascade.Location = new System.Drawing.Point(3, 3);
+            this.selectedCascade.Name = "selectedCascade";
+            this.selectedCascade.Size = new System.Drawing.Size(356, 120);
+            this.selectedCascade.TabIndex = 3;
             // 
             // FormMain
             // 
@@ -473,7 +473,7 @@
         private System.Windows.Forms.LinkLabel linkLabelOpenImage;
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem4;
         private System.Windows.Forms.ToolStripMenuItem processAgainToolStripMenuItem;
-        private System.Windows.Forms.CheckedListBox comboBoxSelectedCascade;
+        private System.Windows.Forms.CheckedListBox selectedCascade;
     }
 }
 
