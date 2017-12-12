@@ -38,7 +38,6 @@
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.linkLabelDuplicateSelected = new System.Windows.Forms.LinkLabel();
             this.linkLabelAddCascade = new System.Windows.Forms.LinkLabel();
-            this.selectedCascade = new Qodex.CustomCheckedListBox();
             this.linkLabelOpenImage = new System.Windows.Forms.LinkLabel();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
@@ -68,6 +67,10 @@
             this.timerClear = new System.Windows.Forms.Timer(this.components);
             this.saveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem5 = new System.Windows.Forms.ToolStripSeparator();
+            this.abortRunToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.selectedCascade = new Qodex.CustomCheckedListBox();
+            this.toolStripMenuItem6 = new System.Windows.Forms.ToolStripSeparator();
+            this.propertiesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxViewer)).BeginInit();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainerMain)).BeginInit();
@@ -181,16 +184,6 @@
             this.linkLabelAddCascade.TabStop = true;
             this.linkLabelAddCascade.Text = "Add cascade";
             this.linkLabelAddCascade.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabelAddCascade_LinkClicked);
-            // 
-            // selectedCascade
-            // 
-            this.selectedCascade.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.selectedCascade.DrawFocusedIndicator = false;
-            this.selectedCascade.FormattingEnabled = true;
-            this.selectedCascade.Location = new System.Drawing.Point(3, 3);
-            this.selectedCascade.Name = "selectedCascade";
-            this.selectedCascade.Size = new System.Drawing.Size(356, 120);
-            this.selectedCascade.TabIndex = 3;
             // 
             // linkLabelOpenImage
             // 
@@ -309,7 +302,8 @@
             this.toolStripMenuItem5,
             this.saveToolStripMenuItem,
             this.toolStripMenuItem4,
-            this.processAgainToolStripMenuItem});
+            this.processAgainToolStripMenuItem,
+            this.abortRunToolStripMenuItem});
             this.imageToolStripMenuItem.Name = "imageToolStripMenuItem";
             this.imageToolStripMenuItem.Size = new System.Drawing.Size(52, 20);
             this.imageToolStripMenuItem.Text = "&Image";
@@ -348,7 +342,9 @@
             this.addNewToolStripMenuItem,
             this.duplicateSelectedToolStripMenuItem,
             this.toolStripMenuItem3,
-            this.removeSelectedToolStripMenuItem});
+            this.removeSelectedToolStripMenuItem,
+            this.toolStripMenuItem6,
+            this.propertiesToolStripMenuItem});
             this.cascadeToolStripMenuItem.Name = "cascadeToolStripMenuItem";
             this.cascadeToolStripMenuItem.Size = new System.Drawing.Size(63, 20);
             this.cascadeToolStripMenuItem.Text = "&Cascade";
@@ -402,6 +398,7 @@
             // backgroundWorkerLoadImage
             // 
             this.backgroundWorkerLoadImage.WorkerReportsProgress = true;
+            this.backgroundWorkerLoadImage.WorkerSupportsCancellation = true;
             this.backgroundWorkerLoadImage.DoWork += new System.ComponentModel.DoWorkEventHandler(this.backgroundWorkerLoadImage_DoWork);
             this.backgroundWorkerLoadImage.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.backgroundWorkerLoadImage_ProgressChanged);
             this.backgroundWorkerLoadImage.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.backgroundWorkerLoadImage_RunWorkerCompleted);
@@ -423,6 +420,36 @@
             // 
             this.toolStripMenuItem5.Name = "toolStripMenuItem5";
             this.toolStripMenuItem5.Size = new System.Drawing.Size(188, 6);
+            // 
+            // abortRunToolStripMenuItem
+            // 
+            this.abortRunToolStripMenuItem.Name = "abortRunToolStripMenuItem";
+            this.abortRunToolStripMenuItem.Size = new System.Drawing.Size(191, 22);
+            this.abortRunToolStripMenuItem.Text = "&Abort run";
+            this.abortRunToolStripMenuItem.Click += new System.EventHandler(this.abortRunToolStripMenuItem_Click);
+            // 
+            // selectedCascade
+            // 
+            this.selectedCascade.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.selectedCascade.DrawFocusedIndicator = false;
+            this.selectedCascade.FormattingEnabled = true;
+            this.selectedCascade.Location = new System.Drawing.Point(3, 3);
+            this.selectedCascade.Name = "selectedCascade";
+            this.selectedCascade.Size = new System.Drawing.Size(356, 120);
+            this.selectedCascade.TabIndex = 3;
+            // 
+            // toolStripMenuItem6
+            // 
+            this.toolStripMenuItem6.Name = "toolStripMenuItem6";
+            this.toolStripMenuItem6.Size = new System.Drawing.Size(211, 6);
+            // 
+            // propertiesToolStripMenuItem
+            // 
+            this.propertiesToolStripMenuItem.Name = "propertiesToolStripMenuItem";
+            this.propertiesToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Alt | System.Windows.Forms.Keys.Return)));
+            this.propertiesToolStripMenuItem.Size = new System.Drawing.Size(214, 22);
+            this.propertiesToolStripMenuItem.Text = "Properties";
+            this.propertiesToolStripMenuItem.Click += new System.EventHandler(this.propertiesToolStripMenuItem_Click);
             // 
             // FormMain
             // 
@@ -492,6 +519,9 @@
         private Qodex.CustomCheckedListBox selectedCascade;
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem5;
         private System.Windows.Forms.ToolStripMenuItem saveToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem abortRunToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem6;
+        private System.Windows.Forms.ToolStripMenuItem propertiesToolStripMenuItem;
     }
 }
 

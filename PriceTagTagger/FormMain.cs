@@ -206,6 +206,8 @@ namespace PriceTagTagger
                 toolStripStatusLabel1.Text = "Ready";
                 timerClear.Start();
             }
+
+            UpdateGUI();
         }
 
         private void timerClear_Tick(object sender, EventArgs e)
@@ -260,6 +262,7 @@ namespace PriceTagTagger
                 foreach (var c in _cascades)
                     selectedCascade.Items.Add(c, c.Enabled);
 
+            propertiesToolStripMenuItem.Enabled = en;
             selectedCascade.Enabled = en;
             linkLabelDuplicateSelected.Enabled = en;
             duplicateSelectedToolStripMenuItem.Enabled = en;
@@ -269,6 +272,7 @@ namespace PriceTagTagger
 
             var imEn = !string.IsNullOrEmpty(_image) && File.Exists(_image);
             loadnextToolStripMenuItem.Enabled = imEn;
+            saveToolStripMenuItem.Enabled = imEn;
             processAgainToolStripMenuItem.Enabled = imEn;
             linkLabelOpenImage.Visible = !imEn;
 
@@ -277,6 +281,8 @@ namespace PriceTagTagger
 
             if (selectedCascade.Items.Count > 0) 
             selectedCascade.SelectedIndex = _selected;
+
+            abortRunToolStripMenuItem.Enabled = backgroundWorkerLoadImage.IsBusy;
         }
 
         private void loadnextToolStripMenuItem_Click(object sender, EventArgs e)
@@ -292,7 +298,7 @@ namespace PriceTagTagger
 
         private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("Innovation Garage AS", "About");
+            MessageBox.Show("Innovation Garage AS" + Environment.NewLine + "v0.1 December 2017", "About");
         }
 
         private void duplicateCurrentToolStripMenuItem_Click(object sender, EventArgs e)
@@ -427,6 +433,16 @@ namespace PriceTagTagger
         private void processAgainToolStripMenuItem_Click(object sender, EventArgs e)
         {
             ProcessCurrentImage();
+        }
+
+        private void abortRunToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            backgroundWorkerLoadImage.CancelAsync();
+        }
+
+        private void propertiesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            new FormProperties(_cascades[selectedCascade.SelectedIndex].CascadePath).ShowDialog();
         }
 
         private void selectedCascade_ItemCheck(object sender, ItemCheckEventArgs e)
