@@ -10,6 +10,7 @@ using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
 using System.Xml.Serialization;
+using WPFFolderBrowser;
 
 namespace PriceTagTagger
 {
@@ -18,7 +19,7 @@ namespace PriceTagTagger
         private bool _processAgain;
         private readonly List<Cascade> _cascades;
         private readonly OpenFileDialog openImageDialog, openSetDialog;
-        private readonly SaveFileDialog saveImageDialog, saveSetDialog;
+        private readonly SaveFileDialog saveImageDialog, saveSetDialog, saveExportDialog;
         private string _image;
         private int _selected = 0;
 
@@ -33,8 +34,9 @@ namespace PriceTagTagger
             // Load and save
             openImageDialog = new OpenFileDialog { Filter = "Image files (*.jpg, *.jpeg, *.jpe, *.jfif, *.png) | *.jpg; *.jpeg; *.jpe; *.jfif; *.png" };
             saveImageDialog = new SaveFileDialog { Filter = "PNG image|*.png" };
-            saveSetDialog = new SaveFileDialog { Filter = "XML File|*.xml" };
-            openSetDialog = new OpenFileDialog { Filter = "XML File|*.xml" };
+            saveSetDialog = new SaveFileDialog { Filter = "XML file|*.xml" };
+            saveExportDialog = new SaveFileDialog { Filter = "CSV file|*.csv" };
+            openSetDialog = new OpenFileDialog { Filter = "XML file|*.xml" };
 
             UpdateCurrent();
         }
@@ -67,26 +69,8 @@ namespace PriceTagTagger
 
         private void ProcessNextImage()
         {
-            _image = GetNextFile(_image);
+            _image = Utilities.GetNextFile(_image);
             ProcessCurrentImage();
-        }
-
-        private static string GetNextFile(string currentImage)
-        {
-            var files = Directory.GetFiles(Path.GetDirectoryName(currentImage));
-
-            var next = false;
-
-            foreach (var f in files)
-            {
-                if (next)
-                    return f;
-
-                if (f == currentImage)
-                    next = true;
-            }
-            return files[0];
-
         }
 
         private void ProcessCurrentImage()
@@ -115,7 +99,7 @@ namespace PriceTagTagger
             {
                 var c = _cascades[i];
 
-                backgroundWorkerLoadImage.ReportProgress((int) Map(i, 0, _cascades.Count, 30, 80));
+                backgroundWorkerLoadImage.ReportProgress((int) Utilities.Map(i, 0, _cascades.Count, 30, 80));
 
                 if (!c.Enabled)
                     continue;
@@ -147,7 +131,7 @@ namespace PriceTagTagger
             }
 
             // Apply ZOrder
-            detected.Sort(ZOrderComparer);
+            detected.Sort(Utilities.ZOrderComparer);
 
             foreach (var d in detected)
             {
@@ -179,16 +163,6 @@ namespace PriceTagTagger
                 case ContentAlignment.BottomRight:point = new Point(rect.Right, rect.Bottom); break;
                 default:throw new ArgumentOutOfRangeException(nameof(contentAlignment), contentAlignment, null);
             }
-        }
-
-        private static int ZOrderComparer(Tuple<Rectangle, Cascade> x, Tuple<Rectangle, Cascade> y)
-        {
-            return x.Item2.ZOrder.CompareTo(y.Item2.ZOrder);
-        }
-
-        private static long Map(long x, long in_min, long in_max, long out_min, long out_max)
-        {
-            return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
         }
 
         private void backgroundWorkerLoadImage_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
@@ -443,6 +417,23 @@ namespace PriceTagTagger
         private void propertiesToolStripMenuItem_Click(object sender, EventArgs e)
         {
             new FormProperties(_cascades[selectedCascade.SelectedIndex].CascadePath).ShowDialog();
+        }
+
+        private void generateTextOutputToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var d = new WPFFolderBrowserDialog { Title = "Folder with the images to process" };
+
+            if (d.ShowDialog().Value)
+            {
+                if (saveExportDialog.ShowDialog() == DialogResult.OK)
+                {
+                    var f = new FormBatchProcessing(d.FileName, _cascades);
+                    if (f.ShowDialog()== DialogResult.OK)
+                    {
+
+                    }
+                }
+            }
         }
 
         private void selectedCascade_ItemCheck(object sender, ItemCheckEventArgs e)
