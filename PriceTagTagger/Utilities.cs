@@ -23,9 +23,9 @@ static internal class Utilities
 
     }
 
-    public static int ZOrderComparer(Tuple<Rectangle, Cascade> x, Tuple<Rectangle, Cascade> y)
+    public static int ZOrderComparer(CascadeMatch x, CascadeMatch y)
     {
-        return x.Item2.ZOrder.CompareTo(y.Item2.ZOrder);
+        return x.Cascade.ZOrder.CompareTo(y.Cascade.ZOrder);
     }
 
     public static long Map(long x, long in_min, long in_max, long out_min, long out_max)

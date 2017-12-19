@@ -93,7 +93,7 @@ namespace PriceTagTagger
         private void backgroundWorkerLoadImage_DoWork(object sender, DoWorkEventArgs e)
         {
             var image = new UMat(_image, ImreadModes.Color); //UMat version
-            var detected = new List<Tuple<Rectangle, Cascade>>();
+            var detected = new List<CascadeMatch>();
 
             for (var i = 0; i < _cascades.Count; i++)
             {
@@ -121,7 +121,7 @@ namespace PriceTagTagger
                             c.DetectorMinNeighbors, c.DetectorMinSize, c.DetectorMaxSize);
                     }
 
-                    detected.AddRange(detectedObjects.Select(r => Tuple.Create(r, c)));
+                    detected.AddRange(detectedObjects.Select(r => new  CascadeMatch(r, c, _image)));
                 }
                 catch (Exception ex)
                 {
@@ -135,13 +135,13 @@ namespace PriceTagTagger
 
             foreach (var d in detected)
             {
-                CvInvoke.Rectangle(image, d.Item1, new Bgr(d.Item2.MarkersBorderColor).MCvScalar,
-                    d.Item2.MarkersBorderSize);
+                CvInvoke.Rectangle(image, d.Rectangle, new Bgr(d.Cascade.MarkersBorderColor).MCvScalar,
+                    d.Cascade.MarkersBorderSize);
 
-                AdjustPosition(d.Item1, d.Item2.LabelPosition, out var p);
+                AdjustPosition(d.Rectangle, d.Cascade.LabelPosition, out var p);
 
-                CvInvoke.PutText(image, d.Item2.LabelText, p, FontFace.HersheyPlain,d.Item2.MarkersBorderSize*0.5,
-                    new Bgr(d.Item2.MarkersBorderColor).MCvScalar, d.Item2.MarkersBorderSize, LineType.AntiAlias);
+                CvInvoke.PutText(image, d.Cascade.LabelText, p, FontFace.HersheyPlain,d.Cascade.MarkersBorderSize*0.5,
+                    new Bgr(d.Cascade.MarkersBorderColor).MCvScalar, d.Cascade.MarkersBorderSize, LineType.AntiAlias);
             }
 
             e.Result = new Bitmap(image.Bitmap);
@@ -430,7 +430,15 @@ namespace PriceTagTagger
                     var f = new FormBatchProcessing(d.FileName, _cascades);
                     if (f.ShowDialog()== DialogResult.OK)
                     {
+                        var csv = new List<string> {"filename,width,height,class,xmin,ymin,xmax,ymax"};
 
+                        foreach (var c in f.Output)
+                        {
+                            var img = Image.FromFile(c.ImagePath);
+                            csv.Add($"{Path.GetFileName(c.ImagePath)},{img.Width},{img.Height},{c.Cascade.Name},{c.Rectangle.Left},{c.Rectangle.Top},{c.Rectangle.Right},{c.Rectangle.Bottom}");
+                        }
+
+                        File.WriteAllLines(saveExportDialog.FileName, csv);
                     }
                 }
             }
